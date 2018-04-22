@@ -19,6 +19,7 @@ void main() {
     // normalize vectors
     vec3 direction = normalize(lightDir);
     vec3 normal = normalize(ecNormal);
+    vec3 camDir = normalize(-ecPosition);
 
 
 //  gl_FragColor = vec4( vertTexCoord.st, 0, 1);
@@ -32,8 +33,10 @@ void main() {
 
 // specular
     vec3 reflectDir = normalize(reflect(-direction, normal));
-    vec3 viewDir = normalize(-ecPosition);
-    float specAngle = max(dot(reflectDir, viewDir), 0.0);
+    vec3 halfDir = normalize(direction + camDir); // blinn phong
+//    float specAngle = max(dot(reflectDir, viewDir), 0.0); // phong
+    float specAngle = max(dot(halfDir, normal), 0.0); // blinn phong
+
     float specular = pow(specAngle, 25.0);
 
     vec3 color =
