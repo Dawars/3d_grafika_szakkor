@@ -10,6 +10,7 @@ repositories {
 }
 
 dependencies {
+//    compile fileTree(dir: 'libs', include: ['*.jar'])
 
     compile group: 'org.processing', name: 'core', version: '3.3.6-1'
 }
