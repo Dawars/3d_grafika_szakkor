@@ -7,9 +7,9 @@ import processing.core.PVector;
 import processing.opengl.PShader;
 
 public class ModelRender extends PApplet {
-    private PShape box;
-    private PImage img;
-    private PShader texShader;
+    private PShape radioShape;
+    private PImage radioTexture;
+    private PShader shader;
     private float angle;
 
     public static void main(String[] args) {
@@ -24,13 +24,12 @@ public class ModelRender extends PApplet {
 
     @Override
     public void setup() {
-        box = loadShape("models/radio.obj");
-        img = loadImage("models/radio.png");
-        texShader = loadShader("szakkor4/frag.glsl", "szakkor4/vert.glsl");
-
+        radioShape = loadShape("models/radio.obj");
+        radioTexture = loadImage("models/radio.png");
+        shader = loadShader("szakkor4/frag.glsl", "szakkor4/vert.glsl");
     }
 
-    PVector[] lights = {new PVector(100, 80, 100)};
+    private PVector[] lights = {new PVector(100, 80, 100)};
 
     @Override
     public void draw() {
@@ -45,9 +44,9 @@ public class ModelRender extends PApplet {
         rotateY(angle);
         for (PVector light : lights) {
             pushMatrix();
-            float x = light.x /** cos(angle)*/;
-            float y = light.y /** sin(angle)*/;
-            float z = light.z /** sin(angle)*/;
+            float x = light.x /* cos(angle)*/;
+            float y = light.y /* sin(angle)*/;
+            float z = light.z /* sin(angle)*/;
 
             pointLight(255, 255, 255, x, y, z);
             translate(x, y, z);
@@ -61,9 +60,15 @@ public class ModelRender extends PApplet {
 
 
         scale(2);
-        shader(texShader);
-        box.setTexture(img);
-        shape(box);
+        shader(shader);
+        radioShape.setTexture(radioTexture);
+        shape(radioShape);
+
+        /*
+        pushMatrix();
+        translate(0, -1, 0);
+        box(1000, 1, 1000);
+        popMatrix();*/
 
         angle += 0.01f;
     }
@@ -77,6 +82,5 @@ public class ModelRender extends PApplet {
         stroke(0, 0, 255);
         line(0, 0, 0, 0, 0, 100);
         noStroke();
-
     }
 }

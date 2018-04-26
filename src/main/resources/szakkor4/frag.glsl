@@ -26,7 +26,18 @@ void main() {
     vec3 diffuseColor = texture2D(texture, vertTexCoord.st).rgb;
     float alpha = texture2D(texture, vertTexCoord.st).a;
 
-    float attenuation = 100. / length(lightDir);
+    //float attenuation = 100. / length(lightDir);
+
+    float lightDistance = length(lightDir);
+    float lightRadius = 250.0;
+
+    //float attenuation = 1.0/(1.0 + dot(lightDit, lightDir)/lightRadius/lightRadius);
+    float attenuation = 1.0/(1.0 + lightDistance*lightDistance/lightRadius/lightRadius);
+
+    //float attenuation = clamp(1.0 - lightDistance*lightDistance/lightRadius/lightRadius, 0.0, 1.0);
+
+    //lightDistance /= lightRadius;
+    //float attenuation = 1.0/(1.0 + 0.1*lightDistance + 0.01*lightDistance*lightDistance);
 
 // diffuse lambert
     float lambertian = max(0, dot(normal, direction));
@@ -46,5 +57,7 @@ void main() {
         ;
 
     gl_FragColor = vec4(color, 1);
+    //gl_FragColor = vec4(attenuation, attenuation, attenuation, 1);
+    //gl_FragColor = vec4(lightDistance, lightDistance, lightDistance, 1);
 
 }
