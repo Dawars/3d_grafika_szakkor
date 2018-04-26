@@ -11,6 +11,7 @@ public class ModelRender extends PApplet {
     private PImage radioTexture;
     private PShader shader;
     private float angle;
+    private PImage floor, wall;
 
     public static void main(String[] args) {
         PApplet.main(ModelRender.class);
@@ -24,12 +25,15 @@ public class ModelRender extends PApplet {
 
     @Override
     public void setup() {
+        textureMode(NORMAL);
         radioShape = loadShape("models/radio.obj");
         radioTexture = loadImage("models/radio.png");
+        floor = loadImage("models/black_floor_metal_001a.jpg");
+        wall = loadImage("models/white_wall.jpg");
         shader = loadShader("szakkor4/frag.glsl", "szakkor4/vert.glsl");
     }
 
-    private PVector[] lights = {new PVector(100, 80, 100)};
+    private PVector[] lights = {new PVector(100, 80, -100)};
 
     @Override
     public void draw() {
@@ -64,11 +68,25 @@ public class ModelRender extends PApplet {
         radioShape.setTexture(radioTexture);
         shape(radioShape);
 
-        /*
-        pushMatrix();
-        translate(0, -1, 0);
-        box(1000, 1, 1000);
-        popMatrix();*/
+        // floor
+        beginShape(QUADS);
+        texture(floor);
+        normal(0, 1, 0);
+        vertex(-100, 0, +100, 0, 1);
+        vertex(+100, 0, +100, 1, 1);
+        vertex(+100, 0, -100, 1, 0);
+        vertex(-100, 0, -100, 0, 0);
+        endShape();
+
+        // wall
+        beginShape(QUADS);
+        texture(wall);
+        normal(0, 1, 0);
+        vertex(-100, +100, 100, 0, 1);
+        vertex(+100, +100, 100, 1, 1);
+        vertex(+100, -100, 100, 1, 0);
+        vertex(-100, -100, 100, 0, 0);
+        endShape();
 
         angle += 0.01f;
     }
