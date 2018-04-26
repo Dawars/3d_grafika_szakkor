@@ -12,8 +12,8 @@ varying vec3 ecPosition; // position
 varying vec3 lightDir; // light
 
 const float kA=0.1;
-const float kD=1;
-const float kS=1;
+const float kD=0.5;
+const float kS=0.4;
 
 void main() {
     // normalize vectors
@@ -41,8 +41,8 @@ void main() {
 
     vec3 color =
          kA * diffuseColor+ // ambient
-        attenuation * lambertian * diffuseColor + // diffuse
-        attenuation * specular * vec3(1.0)
+        kD * attenuation * lambertian * diffuseColor + // diffuse
+        kS * attenuation * specular * vec3(1.0)
         ;
 
     gl_FragColor = vec4(color, 1);
