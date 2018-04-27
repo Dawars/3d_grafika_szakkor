@@ -26,9 +26,9 @@ public class ModelRender extends PApplet {
     @Override
     public void setup() {
         textureMode(NORMAL);
-        radioShape = loadShape("models/radio/radio.obj");
-        radioTexture = loadImage("models/radio/radio.png");
-        shader = loadShader("szakkor7/frag.glsl", "szakkor7/vert.glsl");
+//        radioShape = ; // todo load model
+//        radioTexture = ; // todo load texture
+//        shader = ; // todo load szakkor7 shaders
     }
 
 
@@ -39,7 +39,7 @@ public class ModelRender extends PApplet {
 
         camera(0, -100, 300, 0, 0, 0, 0, 1, 0);
 
-        scale(1, -1, 1);
+        scale(1, -1, 1); // flip coordinate system (+Y up)
 
 
         rotateY(angle);
@@ -54,20 +54,22 @@ public class ModelRender extends PApplet {
         pointLight(255, 255, 255, x, y, z);
         translate(x, y, z);
         sphere(1);
-
         popMatrix();
 
         renderAxis();
 
-
         scale(2);
-        shader(shader);
-        radioShape.setTexture(radioTexture);
-        shape(radioShape);
+
+        shader(shader); // set active shader
+        radioShape.setTexture(radioTexture); // set texture for model
+        shape(radioShape); //  render model
 
         angle += 0.01f;
     }
 
+    /**
+     * Render coordinate axis
+     */
     private void renderAxis() {
         strokeWeight(2);
         stroke(255, 0, 0);
