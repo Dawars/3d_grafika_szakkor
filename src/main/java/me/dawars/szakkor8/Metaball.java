@@ -49,7 +49,7 @@ public class Metaball extends PApplet {
 
         camera(0, 0, 250, 0, 0, 0, 0, 1, 0);
 
-        pointLight(255, 255, 255, 400, 400, 400);
+        pointLight(255, 255, 255, 500, -500, -500);
         fill(0, 127, 255);
 
         for (Blobs blob : blobs) {
@@ -495,52 +495,52 @@ public class Metaball extends PApplet {
                     /* Find the vertices where the surface intersects the cube */
                     if ((edgeTable[cubeindex] & 1) != 0) {
                         vertlist[0] = VertexInterp(isolevel, new PVector(x, y + 1, z), new PVector(x + 1, y + 1, z), field[x][y + 1][z], field[x + 1][y + 1][z]);
-                        normlist[0] = VertexInterp(isolevel, normals[x][y + 1][z], normals[x + 1][y + 1][z], field[x][y + 1][z], field[x + 1][y + 1][z]);
+                        normlist[0] = normals[x][y + 1][z];
 
                     }
                     if ((edgeTable[cubeindex] & 2) != 0) {
                         vertlist[1] = VertexInterp(isolevel, new PVector(x + 1, y + 1, z), new PVector(x + 1, y + 1, z + 1), field[x + 1][y + 1][z], field[x + 1][y + 1][z + 1]);
-                        normlist[1] = VertexInterp(isolevel, normals[x + 1][y + 1][z], normals[x + 1][y + 1][z + 1], field[x + 1][y + 1][z], field[x + 1][y + 1][z + 1]);
+                        normlist[1] = normals[x + 1][y + 1][z];
                     }
                     if ((edgeTable[cubeindex] & 4) != 0) {
                         vertlist[2] = VertexInterp(isolevel, new PVector(x + 1, y + 1, z + 1), new PVector(x, y + 1, z + 1), field[x + 1][y + 1][z + 1], field[x][y + 1][z + 1]);
-                        normlist[2] = VertexInterp(isolevel, normals[x + 1][y + 1][z + 1], normals[x][y + 1][z + 1], field[x + 1][y + 1][z + 1], field[x][y + 1][z + 1]);
+                        normlist[2] = normals[x + 1][y + 1][z + 1];
                     }
                     if ((edgeTable[cubeindex] & 8) != 0) {
                         vertlist[3] = VertexInterp(isolevel, new PVector(x, y + 1, z + 1), new PVector(x, y + 1, z), field[x][y + 1][z + 1], field[x][y + 1][z]);
-                        normlist[3] = VertexInterp(isolevel, normals[x][y + 1][z + 1], normals[x][y + 1][z], field[x][y + 1][z + 1], field[x][y + 1][z]);
+                        normlist[3] = normals[x][y + 1][z + 1];
                     }
                     if ((edgeTable[cubeindex] & 16) != 0) {
                         vertlist[4] = VertexInterp(isolevel, new PVector(x, y, z), new PVector(x + 1, y, z), field[x][y][z], field[x + 1][y][z]);
-                        normlist[4] = VertexInterp(isolevel, normals[x][y][z], normals[x + 1][y][z], field[x][y][z], field[x + 1][y][z]);
+                        normlist[4] = normals[x][y][z];
                     }
                     if ((edgeTable[cubeindex] & 32) != 0) {
                         vertlist[5] = VertexInterp(isolevel, new PVector(x + 1, y, z), new PVector(x + 1, y, z + 1), field[x + 1][y][z], field[x + 1][y][z + 1]);
-                        normlist[5] = VertexInterp(isolevel, normals[x + 1][y][z], normals[x + 1][y][z + 1], field[x + 1][y][z], field[x + 1][y][z + 1]);
+                        normlist[5] = normals[x + 1][y][z];
                     }
                     if ((edgeTable[cubeindex] & 64) != 0) {
                         vertlist[6] = VertexInterp(isolevel, new PVector(x + 1, y, z + 1), new PVector(x, y, z + 1), field[x + 1][y][z + 1], field[x][y][z + 1]);
-                        normlist[6] = VertexInterp(isolevel, normals[x + 1][y][z + 1], normals[x][y][z + 1], field[x + 1][y][z + 1], field[x][y][z + 1]);
+                        normlist[6] = normals[x + 1][y][z + 1];
                     }
                     if ((edgeTable[cubeindex] & 128) != 0) {
                         vertlist[7] = VertexInterp(isolevel, new PVector(x, y, z + 1), new PVector(x, y, z), field[x][y][z + 1], field[x][y][z]);
-                        normlist[7] = VertexInterp(isolevel, normals[x][y][z + 1], normals[x][y][z], field[x][y][z + 1], field[x][y][z]);
+                        normlist[7] = normals[x][y][z + 1];
                     }
                     if ((edgeTable[cubeindex] & 256) != 0) {
                         vertlist[8] = VertexInterp(isolevel, new PVector(x, y + 1, z), new PVector(x, y, z), field[x][y + 1][z], field[x][y][z]);
-                        normlist[8] = VertexInterp(isolevel, normals[x][y + 1][z], normals[x][y][z], field[x][y + 1][z], field[x][y][z]);
+                        normlist[8] = normals[x][y + 1][z];
                     }
                     if ((edgeTable[cubeindex] & 512) != 0) {
                         vertlist[9] = VertexInterp(isolevel, new PVector(x + 1, y + 1, z), new PVector(x + 1, y, z), field[x + 1][y + 1][z], field[x + 1][y][z]);
-                        normlist[9] = VertexInterp(isolevel, normals[x + 1][y + 1][z], normals[x + 1][y][z], field[x + 1][y + 1][z], field[x + 1][y][z]);
+                        normlist[9] = normals[x + 1][y + 1][z];
                     }
                     if ((edgeTable[cubeindex] & 1024) != 0) {
                         vertlist[10] = VertexInterp(isolevel, new PVector(x + 1, y + 1, z + 1), new PVector(x + 1, y, z + 1), field[x + 1][y + 1][z + 1], field[x + 1][y][z + 1]);
-                        normlist[10] = VertexInterp(isolevel, normals[x + 1][y + 1][z + 1], new PVector(x + 1, y, z + 1), field[x + 1][y + 1][z + 1], field[x + 1][y][z + 1]);
+                        normlist[10] = normals[x + 1][y + 1][z + 1];
                     }
                     if ((edgeTable[cubeindex] & 2048) != 0) {
                         vertlist[11] = VertexInterp(isolevel, new PVector(x, y + 1, z + 1), new PVector(x, y, z + 1), field[x][y + 1][z + 1], field[x][y][z + 1]);
-                        normlist[11] = VertexInterp(isolevel, normals[x][y + 1][z + 1], normals[x][y][z + 1], field[x][y + 1][z + 1], field[x][y][z + 1]);
+                        normlist[11] = normals[x][y + 1][z + 1];
                     }
 
                     /* Create the triangle */
@@ -559,8 +559,12 @@ public class Metaball extends PApplet {
                             stroke(255);
                             strokeWeight(1);
 
-                            line(mag * vert.x, mag * vert.y, mag * vert.z,
-                                    mag * vert.x + normal.x * len, mag * vert.y + normal.y * len, mag * vert.z + normal.z * len);
+                            line(mag * vert.x -    100,
+                                    mag * vert.y - 100,
+                                    mag * vert.z - 100,
+                                    mag * vert.x + normal.x * len - 100,
+                                    mag * vert.y + normal.y * len - 100,
+                                    mag * vert.z + normal.z * len - 100);
                         }
                     }
                 }

@@ -7,12 +7,13 @@ uniform vec4 lightPosition;
 attribute vec4 position;
 attribute vec4 color;
 attribute vec3 normal;
+attribute float blendWeight;
 
 varying vec4 vertColor; // color
-varying vec3 lightDir; // light
 varying vec3 ecNormal; // normal
-varying vec3 ecPosition; // vert pos
-
+varying vec3 ecPosition; // position
+varying vec3 lightDir; // light
+varying float weight; // blend weight
 
 void main() {
     // screen coordinate
@@ -25,9 +26,10 @@ void main() {
     vertColor = color;
 
     // normal
-    ecNormal = normalMatrix * normalize(normal);
+    ecNormal = normalMatrix * normal;
 
     // incident light
     lightDir = lightPosition.xyz - ecPosition; // eye coordinates
 
+    weight = blendWeight;
 }
