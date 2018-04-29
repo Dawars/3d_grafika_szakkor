@@ -2,6 +2,7 @@ package me.dawars.szakkor8;
 
 import processing.core.PVector;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -77,24 +78,26 @@ public class Blobs {
         return f(r, 3);
     }
 
-    public static float[][][] fieldStrength(List<Blobs> blobs) {
-        float result[][][] = new float[16][16][16];
+    public static void fieldStrength(List<Blobs> blobs, float[][][] field, PVector[][][] normal) {
+//        if(field == null) field = new float[16][16][16]; // can be output?
 
         for (int x = 0; x < 16; x++) {
             for (int y = 0; y < 16; y++) {
                 for (int z = 0; z < 16; z++) {
+                    field[x][y][z] = 0;
+                    normal[x][y][z] = new PVector();
                     for (int i = 0; i < blobs.size(); i++) {
                         float xDist = blobs.get(i).x - x;
                         float yDist = blobs.get(i).y - y;
                         float zDist = blobs.get(i).z - z;
                         float r = xDist * xDist + yDist * yDist + zDist * zDist; //distance square
-                        result[x][y][z] += f(r, blobs.get(i).strength);
-                    }
+                        float f = f(r, blobs.get(i).strength);
+                        field[x][y][z] += f;
 
+                        normal[x][y][z].add(2 * xDist * f * f, 2 * yDist * f * f, 2 * zDist * f * f).normalize();
+                    }
                 }
             }
         }
-
-        return result;
     }
 }
