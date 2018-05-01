@@ -15,6 +15,7 @@ public class Metaball extends PApplet {
     private PShader voxelShader;
     private float[][][] field;
     private PVector[][][] normals;
+    private float angle;
 
     public static void main(String[] args) {
         PApplet.main(Metaball.class);
@@ -31,7 +32,7 @@ public class Metaball extends PApplet {
         blobs = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
-            blobs.add(new Blobs());
+        blobs.add(new Blobs());
         }
 
         field = new float[Blobs.maxX - Blobs.minX + 1][Blobs.maxY - Blobs.minY + 1][Blobs.maxZ - Blobs.minZ + 1];
@@ -47,13 +48,15 @@ public class Metaball extends PApplet {
     public void draw() {
         background(127);
 
-        camera(0, 0, 250, 0, 0, 0, 0, 1, 0);
+        camera(-200, 0, 0, 0, 0, 0, 0, 1, 0);
 
         pointLight(255, 255, 255, 500, -500, -500);
         fill(0, 127, 255);
 
+        rotateY(angle);
+
         for (Blobs blob : blobs) {
-            blob.update(0.1f);
+//            blob.update(0.1f);
             pushMatrix();
 
             float x = blob.x * scale / (Blobs.maxX - Blobs.minX) - scale / 2;
@@ -70,21 +73,26 @@ public class Metaball extends PApplet {
 
         final float THRESHOLD = 1;
 
-//        PShape sh = renderVoxelBlobs(field, THRESHOLD);
+//        PShape sh2 = renderVoxelBlobs(field, THRESHOLD);
         PShape sh = renderMarchingCubes(field, THRESHOLD);
+
+
+        translate(-scale / 2, -scale / 2, -scale / 2);
+        scale(scale / (Blobs.maxX - Blobs.minX),
+                scale / (Blobs.maxY - Blobs.minY),
+                scale / (Blobs.maxZ - Blobs.minZ));
+
 
         shader(voxelShader);
         shape(sh);
+//        shape(sh2);
+
+        angle+=0.01;
     }
 
     private PShape renderVoxelBlobs(float[][][] field, float threshold) {
         PShape sh = createShape();
         sh.beginShape(QUADS);
-
-        sh.translate(-scale / 2, -scale / 2, -scale / 2);
-        sh.scale(scale / (Blobs.maxX - Blobs.minX),
-                scale / (Blobs.maxY - Blobs.minY),
-                scale / (Blobs.maxZ - Blobs.minZ));
 
         for (int i = Blobs.minX; i <= Blobs.maxX; i++)
             for (int j = Blobs.minY; j <= Blobs.maxY; j++)
@@ -459,11 +467,6 @@ public class Metaball extends PApplet {
         PShape sh = createShape();
         sh.beginShape(TRIANGLES);
 
-        sh.scale(scale / (Blobs.maxX - Blobs.minX),
-                scale / (Blobs.maxY - Blobs.minY),
-                scale / (Blobs.maxZ - Blobs.minZ));
-        sh.translate(-scale / 2, -scale / 2, -scale / 2);
-
         // 0 1 2 3       n - grid point coords
         // |0|1|2|...|n-1| - grid center
         for (int x = Blobs.minX; x < Blobs.maxX; x++)
@@ -493,55 +496,57 @@ public class Metaball extends PApplet {
                         continue;
 
                     /* Find the vertices where the surface intersects the cube */
+                    /* Find the vertices where the surface intersects the cube */
                     if ((edgeTable[cubeindex] & 1) != 0) {
                         vertlist[0] = VertexInterp(isolevel, new PVector(x, y + 1, z), new PVector(x + 1, y + 1, z), field[x][y + 1][z], field[x + 1][y + 1][z]);
-                        normlist[0] = normals[x][y + 1][z];
+                        normlist[0] = VertexInterp(isolevel, normals[x][y + 1][z], normals[x + 1][y + 1][z], field[x][y + 1][z], field[x + 1][y + 1][z]);
 
                     }
                     if ((edgeTable[cubeindex] & 2) != 0) {
                         vertlist[1] = VertexInterp(isolevel, new PVector(x + 1, y + 1, z), new PVector(x + 1, y + 1, z + 1), field[x + 1][y + 1][z], field[x + 1][y + 1][z + 1]);
-                        normlist[1] = normals[x + 1][y + 1][z];
+                        normlist[1] = VertexInterp(isolevel, normals[x + 1][y + 1][z], normals[x + 1][y + 1][z + 1], field[x + 1][y + 1][z], field[x + 1][y + 1][z + 1]);
                     }
                     if ((edgeTable[cubeindex] & 4) != 0) {
                         vertlist[2] = VertexInterp(isolevel, new PVector(x + 1, y + 1, z + 1), new PVector(x, y + 1, z + 1), field[x + 1][y + 1][z + 1], field[x][y + 1][z + 1]);
-                        normlist[2] = normals[x + 1][y + 1][z + 1];
+                        normlist[2] = VertexInterp(isolevel, normals[x + 1][y + 1][z + 1], normals[x][y + 1][z + 1], field[x + 1][y + 1][z + 1], field[x][y + 1][z + 1]);
                     }
                     if ((edgeTable[cubeindex] & 8) != 0) {
                         vertlist[3] = VertexInterp(isolevel, new PVector(x, y + 1, z + 1), new PVector(x, y + 1, z), field[x][y + 1][z + 1], field[x][y + 1][z]);
-                        normlist[3] = normals[x][y + 1][z + 1];
+                        normlist[3] = VertexInterp(isolevel, normals[x][y + 1][z + 1], normals[x][y + 1][z], field[x][y + 1][z + 1], field[x][y + 1][z]);
                     }
                     if ((edgeTable[cubeindex] & 16) != 0) {
                         vertlist[4] = VertexInterp(isolevel, new PVector(x, y, z), new PVector(x + 1, y, z), field[x][y][z], field[x + 1][y][z]);
-                        normlist[4] = normals[x][y][z];
+                        normlist[4] = VertexInterp(isolevel, normals[x][y][z], normals[x + 1][y][z], field[x][y][z], field[x + 1][y][z]);
                     }
                     if ((edgeTable[cubeindex] & 32) != 0) {
                         vertlist[5] = VertexInterp(isolevel, new PVector(x + 1, y, z), new PVector(x + 1, y, z + 1), field[x + 1][y][z], field[x + 1][y][z + 1]);
-                        normlist[5] = normals[x + 1][y][z];
+                        normlist[5] = VertexInterp(isolevel, normals[x + 1][y][z], normals[x + 1][y][z + 1], field[x + 1][y][z], field[x + 1][y][z + 1]);
                     }
                     if ((edgeTable[cubeindex] & 64) != 0) {
                         vertlist[6] = VertexInterp(isolevel, new PVector(x + 1, y, z + 1), new PVector(x, y, z + 1), field[x + 1][y][z + 1], field[x][y][z + 1]);
-                        normlist[6] = normals[x + 1][y][z + 1];
+                        normlist[6] = VertexInterp(isolevel, normals[x + 1][y][z + 1], normals[x][y][z + 1], field[x + 1][y][z + 1], field[x][y][z + 1]);
                     }
                     if ((edgeTable[cubeindex] & 128) != 0) {
                         vertlist[7] = VertexInterp(isolevel, new PVector(x, y, z + 1), new PVector(x, y, z), field[x][y][z + 1], field[x][y][z]);
-                        normlist[7] = normals[x][y][z + 1];
+                        normlist[7] = VertexInterp(isolevel, normals[x][y][z + 1], normals[x][y][z], field[x][y][z + 1], field[x][y][z]);
                     }
                     if ((edgeTable[cubeindex] & 256) != 0) {
                         vertlist[8] = VertexInterp(isolevel, new PVector(x, y + 1, z), new PVector(x, y, z), field[x][y + 1][z], field[x][y][z]);
-                        normlist[8] = normals[x][y + 1][z];
+                        normlist[8] = VertexInterp(isolevel, normals[x][y + 1][z], normals[x][y][z], field[x][y + 1][z], field[x][y][z]);
                     }
                     if ((edgeTable[cubeindex] & 512) != 0) {
                         vertlist[9] = VertexInterp(isolevel, new PVector(x + 1, y + 1, z), new PVector(x + 1, y, z), field[x + 1][y + 1][z], field[x + 1][y][z]);
-                        normlist[9] = normals[x + 1][y + 1][z];
+                        normlist[9] = VertexInterp(isolevel, normals[x + 1][y + 1][z], normals[x + 1][y][z], field[x + 1][y + 1][z], field[x + 1][y][z]);
                     }
                     if ((edgeTable[cubeindex] & 1024) != 0) {
                         vertlist[10] = VertexInterp(isolevel, new PVector(x + 1, y + 1, z + 1), new PVector(x + 1, y, z + 1), field[x + 1][y + 1][z + 1], field[x + 1][y][z + 1]);
-                        normlist[10] = normals[x + 1][y + 1][z + 1];
+                        normlist[10] = VertexInterp(isolevel, normals[x + 1][y + 1][z + 1], new PVector(x + 1, y, z + 1), field[x + 1][y + 1][z + 1], field[x + 1][y][z + 1]);
                     }
                     if ((edgeTable[cubeindex] & 2048) != 0) {
                         vertlist[11] = VertexInterp(isolevel, new PVector(x, y + 1, z + 1), new PVector(x, y, z + 1), field[x][y + 1][z + 1], field[x][y][z + 1]);
-                        normlist[11] = normals[x][y + 1][z + 1];
+                        normlist[11] = VertexInterp(isolevel, normals[x][y + 1][z + 1], normals[x][y][z + 1], field[x][y + 1][z + 1], field[x][y][z + 1]);
                     }
+
 
                     /* Create the triangle */
                     for (int i = 0; triTable[cubeindex][i] != -1; i += 3) {
@@ -550,21 +555,24 @@ public class Metaball extends PApplet {
                             PVector normal = normlist[triTable[cubeindex][i + v]];
                             normal.normalize();
 
-                            sh.normal(normal.x, normal.y, normal.z);
-                            sh.vertex(vert.x, vert.y, vert.z);
+//                            if (i % 4 == 0) normal.set(1, 0, 0);
 
-                            int len = 2;
+                            sh.normal(normal.x, normal.y, normal.z);
+
+                            sh.vertex(vert.x, vert.y, vert.z);
+                            int len = 5;
                             int mag = 10;
+                            int move = 75;
                             fill(255);
                             stroke(255);
                             strokeWeight(1);
 
-                            line(mag * vert.x -    100,
-                                    mag * vert.y - 100,
-                                    mag * vert.z - 100,
-                                    mag * vert.x + normal.x * len - 100,
-                                    mag * vert.y + normal.y * len - 100,
-                                    mag * vert.z + normal.z * len - 100);
+                            line(mag * vert.x - move,
+                                    mag * vert.y - move,
+                                    mag * vert.z - move,
+                                    mag * vert.x + normal.x * len - move,
+                                    mag * vert.y + normal.y * len - move,
+                                    mag * vert.z + normal.z * len - move);
                         }
                     }
                 }

@@ -70,12 +70,8 @@ public class Blobs {
         this.z += speed * this.velZ;
     }
 
-    private static float f(float r, int strength) {
-        return strength / r;
-    }
-
     private static float f(float r) {
-        return f(r, 3);
+        return 1 / r;
     }
 
     public static void fieldStrength(List<Blobs> blobs, float[][][] field, PVector[][][] normal) {
@@ -85,16 +81,17 @@ public class Blobs {
             for (int y = 0; y < 16; y++) {
                 for (int z = 0; z < 16; z++) {
                     field[x][y][z] = 0;
-                    normal[x][y][z] = new PVector();
+                    normal[x][y][z] = new PVector(0, 0, 0);
                     for (int i = 0; i < blobs.size(); i++) {
                         float xDist = blobs.get(i).x - x;
                         float yDist = blobs.get(i).y - y;
                         float zDist = blobs.get(i).z - z;
                         float r = xDist * xDist + yDist * yDist + zDist * zDist; //distance square
-                        float f = f(r, blobs.get(i).strength);
-                        field[x][y][z] += f;
 
-                        normal[x][y][z].add(2 * xDist * f * f, 2 * yDist * f * f, 2 * zDist * f * f).normalize();
+                        int strength = blobs.get(i).strength;
+                        field[x][y][z] += strength / r;
+
+                        normal[x][y][z].add(new PVector(2 * xDist, 2 * yDist, 2 * zDist).mult(1/(r*r)));
                     }
                 }
             }
