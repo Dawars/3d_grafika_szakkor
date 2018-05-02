@@ -1,11 +1,14 @@
 package me.dawars.szakkor12;
 
+import com.jogamp.opengl.GL2ES2;
+import com.jogamp.opengl.GL3;
 import processing.core.PApplet;
 import processing.core.PShape;
 import processing.core.PShapeOBJ;
 import processing.core.PVector;
 import processing.data.JSONArray;
 import processing.event.KeyEvent;
+import processing.opengl.PJOGL;
 import processing.opengl.PShader;
 import processing.opengl.PShapeOpenGL;
 
@@ -66,6 +69,10 @@ public class SkeletalAnim extends PApplet {
         }
 
         setWeightAttrib(1);
+
+
+        PJOGL pgl = (PJOGL) beginPGL();
+        GL3 gl = pgl.gl.getGL3();
 
     }
 

@@ -4,8 +4,11 @@ import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PShape;
 import processing.core.PVector;
+import processing.opengl.PGL;
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.PShader;
+
+import java.nio.IntBuffer;
 
 public class ModelRender extends PApplet {
     private PShape radioShape;
@@ -33,28 +36,47 @@ public class ModelRender extends PApplet {
         shader = loadShader("szakkor9/frag.glsl", "szakkor9/vert.glsl");
 
         cubeMap = new PImage[]{
-                loadImage("szakkor9/negx512.jpg"),
-                loadImage("szakkor9/negy512.jpg"),
-                loadImage("szakkor9/negz512.jpg"),
                 loadImage("szakkor9/posx512.jpg"),
+                loadImage("szakkor9/negx512.jpg"),
                 loadImage("szakkor9/posy512.jpg"),
-                loadImage("szakkor9/posz512.jpg")
+                loadImage("szakkor9/negy512.jpg"),
+                loadImage("szakkor9/posz512.jpg"),
+                loadImage("szakkor9/negz512.jpg"),
         };
+/*
+        PGL pgl = beginPGL();
+// create the OpenGL-based cubeMap
+        IntBuffer envMapTextureID = IntBuffer.allocate(1);
+        pgl.genTextures(1, envMapTextureID);
+        pgl.activeTexture(PGL.TEXTURE1);
+        pgl.enable(PGL.TEXTURE_CUBE_MAP);
+        pgl.bindTexture(PGL.TEXTURE_CUBE_MAP, envMapTextureID.get(0));
+        pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_WRAP_S, PGL.CLAMP_TO_EDGE);
+        pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_WRAP_T, PGL.CLAMP_TO_EDGE);
+        pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_WRAP_R, PGL.CLAMP_TO_EDGE);
+        pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_MIN_FILTER, PGL.LINEAR);
+        pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_MAG_FILTER, PGL.LINEAR);
 
-        shader.set("cubemap1", cubeMap[0]);
-        shader.set("cubemap2", cubeMap[1]);
-        shader.set("cubemap3", cubeMap[2]);
-        shader.set("cubemap4", cubeMap[3]);
-        shader.set("cubemap5", cubeMap[4]);
-        shader.set("cubemap6", cubeMap[5]);
 
-        pg = (PGraphicsOpenGL) this.g;
+// put the textures in the cubeMap
+        for (int i = 0; i < cubeMap.length; i++) {
+            int w = cubeMap[i].width;
+            int h = cubeMap[i].height;
+            cubeMap[i].loadPixels();
+            int[] pix = cubeMap[i].pixels;
+            pgl.texImage2D(PGL.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, PGL.RGBA, w, h, 0, PGL.RGBA, PGL.UNSIGNED_BYTE, java.nio.IntBuffer.wrap(pix));
+        }
+
+        endPGL();
+        shader.set("cubemap", envMapTextureID.get(0));*/
+
     }
 
     private PVector[] lights = {new PVector(100, 80, -100)};
 
     @Override
     public void draw() {
+
         background(0);
         resetShader();
 
@@ -87,5 +109,4 @@ public class ModelRender extends PApplet {
 
         angle += 0.01f;
     }
-
 }
