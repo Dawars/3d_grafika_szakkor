@@ -2,7 +2,6 @@ package me.dawars.szakkor8;
 
 import processing.core.PVector;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -74,14 +73,13 @@ public class Blobs {
         return 1 / r;
     }
 
-    public static void fieldStrength(List<Blobs> blobs, float[][][] field, PVector[][][] normal) {
+    public static void fieldStrength(List<Blobs> blobs, float[][][] field) {
 //        if(field == null) field = new float[16][16][16]; // can be output?
 
         for (int x = 0; x < 16; x++) {
             for (int y = 0; y < 16; y++) {
                 for (int z = 0; z < 16; z++) {
                     field[x][y][z] = 0;
-                    normal[x][y][z] = new PVector(0, 0, 0);
                     for (int i = 0; i < blobs.size(); i++) {
                         float xDist = blobs.get(i).x - x;
                         float yDist = blobs.get(i).y - y;
@@ -90,11 +88,27 @@ public class Blobs {
 
                         int strength = blobs.get(i).strength;
                         field[x][y][z] += strength / r;
-
-                        normal[x][y][z].add(new PVector(2 * xDist, 2 * yDist, 2 * zDist).mult(1/(r*r)));
                     }
                 }
             }
         }
     }
+
+    public static PVector normal(float x, float y, float z, List<Blobs> blobs) {
+
+        PVector normal = new PVector(0, 0, 0);
+
+        for (Blobs blob : blobs) {
+            float xDist = blob.x - x;
+            float yDist = blob.y - y;
+            float zDist = blob.z - z;
+            float r = xDist * xDist + yDist * yDist + zDist * zDist; //distance square
+
+            float f = 1 / (r * r);
+            normal.add(xDist * f, yDist * f, zDist * f);
+        }
+        return normal.mult(2);
+    }
+
+
 }

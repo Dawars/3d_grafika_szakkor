@@ -5,7 +5,6 @@ import processing.core.PShape;
 import processing.core.PVector;
 import processing.opengl.PShader;
 
-import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +13,6 @@ public class Metaball extends PApplet {
     private List<Blobs> blobs;
     private PShader voxelShader;
     private float[][][] field;
-    private PVector[][][] normals;
     private float angle;
 
     public static void main(String[] args) {
@@ -32,11 +30,10 @@ public class Metaball extends PApplet {
         blobs = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
-        blobs.add(new Blobs());
+            blobs.add(new Blobs());
         }
 
         field = new float[Blobs.maxX - Blobs.minX + 1][Blobs.maxY - Blobs.minY + 1][Blobs.maxZ - Blobs.minZ + 1];
-        normals = new PVector[Blobs.maxX - Blobs.minX + 1][Blobs.maxY - Blobs.minY + 1][Blobs.maxZ - Blobs.minZ + 1];
 
         voxelShader = loadShader("szakkor8/frag.glsl", "szakkor8/vert.glsl");
 
@@ -69,7 +66,7 @@ public class Metaball extends PApplet {
             popMatrix();
         }
 
-        Blobs.fieldStrength(blobs, field, normals);
+        Blobs.fieldStrength(blobs, field);
 
         final float THRESHOLD = 1;
 
@@ -87,7 +84,7 @@ public class Metaball extends PApplet {
         shape(sh);
 //        shape(sh2);
 
-        angle+=0.01;
+        angle += 0.01;
     }
 
     private PShape renderVoxelBlobs(float[][][] field, float threshold) {
@@ -496,55 +493,64 @@ public class Metaball extends PApplet {
                         continue;
 
                     /* Find the vertices where the surface intersects the cube */
-                    /* Find the vertices where the surface intersects the cube */
                     if ((edgeTable[cubeindex] & 1) != 0) {
                         vertlist[0] = VertexInterp(isolevel, new PVector(x, y + 1, z), new PVector(x + 1, y + 1, z), field[x][y + 1][z], field[x + 1][y + 1][z]);
-                        normlist[0] = VertexInterp(isolevel, normals[x][y + 1][z], normals[x + 1][y + 1][z], field[x][y + 1][z], field[x + 1][y + 1][z]);
+//                        normlist[0] = VertexInterp(isolevel, normals[x][y + 1][z], normals[x + 1][y + 1][z], field[x][y + 1][z], field[x + 1][y + 1][z]);
+                        normlist[0] = VertexInterp(isolevel, Blobs.normal(x, y + 1, z, blobs), Blobs.normal(x + 1, y + 1, z, blobs), field[x][y + 1][z], field[x + 1][y + 1][z]);
 
                     }
                     if ((edgeTable[cubeindex] & 2) != 0) {
                         vertlist[1] = VertexInterp(isolevel, new PVector(x + 1, y + 1, z), new PVector(x + 1, y + 1, z + 1), field[x + 1][y + 1][z], field[x + 1][y + 1][z + 1]);
-                        normlist[1] = VertexInterp(isolevel, normals[x + 1][y + 1][z], normals[x + 1][y + 1][z + 1], field[x + 1][y + 1][z], field[x + 1][y + 1][z + 1]);
+//                        normlist[1] = VertexInterp(isolevel, normals[x + 1][y + 1][z], normals[x + 1][y + 1][z + 1], field[x + 1][y + 1][z], field[x + 1][y + 1][z + 1]);
+                        normlist[1] = VertexInterp(isolevel, Blobs.normal(x + 1, y + 1, z, blobs), Blobs.normal(x + 1, y + 1, z + 10, blobs), field[x + 1][y + 1][z], field[x + 1][y + 1][z + 1]);
                     }
                     if ((edgeTable[cubeindex] & 4) != 0) {
                         vertlist[2] = VertexInterp(isolevel, new PVector(x + 1, y + 1, z + 1), new PVector(x, y + 1, z + 1), field[x + 1][y + 1][z + 1], field[x][y + 1][z + 1]);
-                        normlist[2] = VertexInterp(isolevel, normals[x + 1][y + 1][z + 1], normals[x][y + 1][z + 1], field[x + 1][y + 1][z + 1], field[x][y + 1][z + 1]);
+                        normlist[2] = VertexInterp(isolevel, Blobs.normal(x + 1, y + 1, z + 1, blobs), Blobs.normal(x, y + 1, z + 1, blobs), field[x + 1][y + 1][z + 1], field[x][y + 1][z + 1]);
+//                        normlist[2] = VertexInterp(isolevel, normals[x + 1][y + 1][z + 1], normals[x][y + 1][z + 1], field[x + 1][y + 1][z + 1], field[x][y + 1][z + 1]);
                     }
                     if ((edgeTable[cubeindex] & 8) != 0) {
                         vertlist[3] = VertexInterp(isolevel, new PVector(x, y + 1, z + 1), new PVector(x, y + 1, z), field[x][y + 1][z + 1], field[x][y + 1][z]);
-                        normlist[3] = VertexInterp(isolevel, normals[x][y + 1][z + 1], normals[x][y + 1][z], field[x][y + 1][z + 1], field[x][y + 1][z]);
+                        normlist[3] = VertexInterp(isolevel, Blobs.normal(x, y + 1, z + 1, blobs), Blobs.normal(x, y + 1, z, blobs), field[x][y + 1][z + 1], field[x][y + 1][z]);
+//                        normlist[3] = VertexInterp(isolevel, normals[x][y + 1][z + 1], normals[x][y + 1][z], field[x][y + 1][z + 1], field[x][y + 1][z]);
                     }
                     if ((edgeTable[cubeindex] & 16) != 0) {
                         vertlist[4] = VertexInterp(isolevel, new PVector(x, y, z), new PVector(x + 1, y, z), field[x][y][z], field[x + 1][y][z]);
-                        normlist[4] = VertexInterp(isolevel, normals[x][y][z], normals[x + 1][y][z], field[x][y][z], field[x + 1][y][z]);
+                        normlist[4] = VertexInterp(isolevel, Blobs.normal(x, y, z, blobs), Blobs.normal(x + 1, y, z, blobs), field[x][y][z], field[x + 1][y][z]);
+//                        normlist[4] = VertexInterp(isolevel, normals[x][y][z], normals[x + 1][y][z], field[x][y][z], field[x + 1][y][z]);
                     }
                     if ((edgeTable[cubeindex] & 32) != 0) {
                         vertlist[5] = VertexInterp(isolevel, new PVector(x + 1, y, z), new PVector(x + 1, y, z + 1), field[x + 1][y][z], field[x + 1][y][z + 1]);
-                        normlist[5] = VertexInterp(isolevel, normals[x + 1][y][z], normals[x + 1][y][z + 1], field[x + 1][y][z], field[x + 1][y][z + 1]);
+                        normlist[5] = VertexInterp(isolevel, Blobs.normal(x + 1, y, z, blobs), Blobs.normal(x + 1, y, z + 1, blobs), field[x + 1][y][z], field[x + 1][y][z + 1]);
+//                        normlist[5] = VertexInterp(isolevel, normals[x + 1][y][z], normals[x + 1][y][z + 1], field[x + 1][y][z], field[x + 1][y][z + 1]);
                     }
                     if ((edgeTable[cubeindex] & 64) != 0) {
                         vertlist[6] = VertexInterp(isolevel, new PVector(x + 1, y, z + 1), new PVector(x, y, z + 1), field[x + 1][y][z + 1], field[x][y][z + 1]);
-                        normlist[6] = VertexInterp(isolevel, normals[x + 1][y][z + 1], normals[x][y][z + 1], field[x + 1][y][z + 1], field[x][y][z + 1]);
+                        normlist[6] = VertexInterp(isolevel, Blobs.normal(x + 1, y, z + 1, blobs), Blobs.normal(x, y, z + 1, blobs), field[x + 1][y][z + 1], field[x][y][z + 1]);
                     }
                     if ((edgeTable[cubeindex] & 128) != 0) {
                         vertlist[7] = VertexInterp(isolevel, new PVector(x, y, z + 1), new PVector(x, y, z), field[x][y][z + 1], field[x][y][z]);
-                        normlist[7] = VertexInterp(isolevel, normals[x][y][z + 1], normals[x][y][z], field[x][y][z + 1], field[x][y][z]);
+                        normlist[7] = VertexInterp(isolevel, Blobs.normal(x, y, z + 1, blobs), Blobs.normal(x, y, z, blobs), field[x][y][z + 1], field[x][y][z]);
                     }
                     if ((edgeTable[cubeindex] & 256) != 0) {
                         vertlist[8] = VertexInterp(isolevel, new PVector(x, y + 1, z), new PVector(x, y, z), field[x][y + 1][z], field[x][y][z]);
-                        normlist[8] = VertexInterp(isolevel, normals[x][y + 1][z], normals[x][y][z], field[x][y + 1][z], field[x][y][z]);
+                        normlist[8] = VertexInterp(isolevel, Blobs.normal(x, y + 1, z, blobs), Blobs.normal(x, y, z, blobs), field[x][y + 1][z], field[x][y][z]);
+//                        normlist[8] = VertexInterp(isolevel, normals[x][y + 1][z], normals[x][y][z], field[x][y + 1][z], field[x][y][z]);
                     }
                     if ((edgeTable[cubeindex] & 512) != 0) {
                         vertlist[9] = VertexInterp(isolevel, new PVector(x + 1, y + 1, z), new PVector(x + 1, y, z), field[x + 1][y + 1][z], field[x + 1][y][z]);
-                        normlist[9] = VertexInterp(isolevel, normals[x + 1][y + 1][z], normals[x + 1][y][z], field[x + 1][y + 1][z], field[x + 1][y][z]);
+                        normlist[9] = VertexInterp(isolevel, Blobs.normal(x + 1, y + 1, z, blobs), Blobs.normal(x + 1, y, z, blobs), field[x + 1][y + 1][z], field[x + 1][y][z]);
+//                        normlist[9] = VertexInterp(isolevel, normals[x + 1][y + 1][z], normals[x + 1][y][z], field[x + 1][y + 1][z], field[x + 1][y][z]);
                     }
                     if ((edgeTable[cubeindex] & 1024) != 0) {
                         vertlist[10] = VertexInterp(isolevel, new PVector(x + 1, y + 1, z + 1), new PVector(x + 1, y, z + 1), field[x + 1][y + 1][z + 1], field[x + 1][y][z + 1]);
-                        normlist[10] = VertexInterp(isolevel, normals[x + 1][y + 1][z + 1], new PVector(x + 1, y, z + 1), field[x + 1][y + 1][z + 1], field[x + 1][y][z + 1]);
+                        normlist[10] = VertexInterp(isolevel, Blobs.normal(x + 1, y + 1, z + 1, blobs), Blobs.normal(x + 1, y, z + 1, blobs), field[x + 1][y + 1][z + 1], field[x + 1][y][z + 1]);
+//                        normlist[10] = VertexInterp(isolevel, normals[x + 1][y + 1][z + 1], !!!!new PVector(x + 1, y, z + 1), field[x + 1][y + 1][z + 1], field[x + 1][y][z + 1]);
                     }
                     if ((edgeTable[cubeindex] & 2048) != 0) {
                         vertlist[11] = VertexInterp(isolevel, new PVector(x, y + 1, z + 1), new PVector(x, y, z + 1), field[x][y + 1][z + 1], field[x][y][z + 1]);
-                        normlist[11] = VertexInterp(isolevel, normals[x][y + 1][z + 1], normals[x][y][z + 1], field[x][y + 1][z + 1], field[x][y][z + 1]);
+                        normlist[11] = VertexInterp(isolevel, Blobs.normal(x, y + 1, z + 1, blobs), Blobs.normal(x, y, z + 1, blobs), field[x][y + 1][z + 1], field[x][y][z + 1]);
+//                        normlist[11] = VertexInterp(isolevel, normals[x][y + 1][z + 1], normals[x][y][z + 1], field[x][y + 1][z + 1], field[x][y][z + 1]);
                     }
 
 
