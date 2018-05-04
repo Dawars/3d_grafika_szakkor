@@ -94,7 +94,7 @@ public class Metaball extends PApplet {
 
 
         for (Blobs blob : blobs) {
-            blob.update(0.1f);
+            blob.update(0.2f);
             pushMatrix();
 
             float x = blob.x * scale / (Blobs.maxX - Blobs.minX) - scale / 2;
@@ -109,7 +109,7 @@ public class Metaball extends PApplet {
 
         calcField(blobs);
 
-        final float THRESHOLD = 0.25f;
+        final float THRESHOLD = 5f;
 
         PShape sh = renderMarchingCubes(THRESHOLD);
 
@@ -120,7 +120,7 @@ public class Metaball extends PApplet {
                 scale / (Blobs.maxZ - Blobs.minZ));
 */
 
-        scale(scale/2);
+        scale(scale / 2);
 
 
         shader(voxelShader);
@@ -273,13 +273,13 @@ public class Metaball extends PApplet {
                     popMatrix();
 
                     // cache indices of cubes
-                    int q1 = q + 1;
-                    int qy = q + this.yd;
-                    int qz = q + this.zd;
-                    int q1y = q1 + this.yd;
-                    int q1z = q1 + this.zd;
-                    int qyz = q + this.yd + this.zd;
-                    int q1yz = q1 + this.yd + this.zd;
+                    int q1 = q + 1; // +x
+                    int qy = q + this.yd; // +y
+                    int qz = q + this.zd; // +z
+                    int q1y = q1 + this.yd; // +x +y
+                    int q1z = q1 + this.zd; // +x +z
+                    int qyz = q + this.yd + this.zd; // +y +z
+                    int q1yz = q1 + this.yd + this.zd; // +x +y +z
 
                     int cubeindex = 0;
                     float field0 = this.field[q];
@@ -314,32 +314,32 @@ public class Metaball extends PApplet {
 
                     if ((bits & 1) != 0) {
 
-                        this.compNorm(q);
-                        this.compNorm(q1);
+                        this.compNorm(x, y, z);
+                        this.compNorm(x + 1, y, z);
                         this.VIntX(q * 3, this.vlist, this.nlist, 0, isolevel, fx, fy, fz, field0, field1);
 
                     }
 
                     if ((bits & 2) != 0) {
 
-                        this.compNorm(q1);
-                        this.compNorm(q1y);
+                        this.compNorm(x + 1, y, z);
+                        this.compNorm(x + 1, y + 1, z);
                         this.VIntY(q1 * 3, this.vlist, this.nlist, 3, isolevel, fx2, fy, fz, field1, field3);
 
                     }
 
                     if ((bits & 4) != 0) {
 
-                        this.compNorm(qy);
-                        this.compNorm(q1y);
+                        this.compNorm(x, y + 1, z);
+                        this.compNorm(x + 1, y + 1, z);
                         this.VIntX(qy * 3, this.vlist, this.nlist, 6, isolevel, fx, fy2, fz, field2, field3);
 
                     }
 
                     if ((bits & 8) != 0) {
 
-                        this.compNorm(q);
-                        this.compNorm(qy);
+                        this.compNorm(x, y, z);
+                        this.compNorm(x, y + 1, z);
                         this.VIntY(q * 3, this.vlist, this.nlist, 9, isolevel, fx, fy, fz, field0, field2);
 
                     }
@@ -348,32 +348,32 @@ public class Metaball extends PApplet {
 
                     if ((bits & 16) != 0) {
 
-                        this.compNorm(qz);
-                        this.compNorm(q1z);
+                        this.compNorm(x, y, z + 1);
+                        this.compNorm(x + 1, y, z + 1);
                         this.VIntX(qz * 3, this.vlist, this.nlist, 12, isolevel, fx, fy, fz2, field4, field5);
 
                     }
 
                     if ((bits & 32) != 0) {
 
-                        this.compNorm(q1z);
-                        this.compNorm(q1yz);
+                        this.compNorm(x + 1, y, z + 1);
+                        this.compNorm(x + 1, y + 1, z + 1);
                         this.VIntY(q1z * 3, this.vlist, this.nlist, 15, isolevel, fx2, fy, fz2, field5, field7);
 
                     }
 
                     if ((bits & 64) != 0) {
 
-                        this.compNorm(qyz);
-                        this.compNorm(q1yz);
+                        this.compNorm(x, y + 1, z + 1);
+                        this.compNorm(x + 1, y + 1, z + 1);
                         this.VIntX(qyz * 3, this.vlist, this.nlist, 18, isolevel, fx, fy2, fz2, field6, field7);
 
                     }
 
                     if ((bits & 128) != 0) {
 
-                        this.compNorm(qz);
-                        this.compNorm(qyz);
+                        this.compNorm(x, y, z + 1);
+                        this.compNorm(x, y + 1, z + 1);
                         this.VIntY(qz * 3, this.vlist, this.nlist, 21, isolevel, fx, fy, fz2, field4, field6);
 
                     }
@@ -382,32 +382,32 @@ public class Metaball extends PApplet {
 
                     if ((bits & 256) != 0) {
 
-                        this.compNorm(q);
-                        this.compNorm(qz);
+                        this.compNorm(x, y, z);
+                        this.compNorm(x, y, z + 1);
                         this.VIntZ(q * 3, this.vlist, this.nlist, 24, isolevel, fx, fy, fz, field0, field4);
 
                     }
 
                     if ((bits & 512) != 0) {
 
-                        this.compNorm(q1);
-                        this.compNorm(q1z);
+                        this.compNorm(x + 1, y, z);
+                        this.compNorm(x + 1, y, z + 1);
                         this.VIntZ(q1 * 3, this.vlist, this.nlist, 27, isolevel, fx2, fy, fz, field1, field5);
 
                     }
 
                     if ((bits & 1024) != 0) {
 
-                        this.compNorm(q1y);
-                        this.compNorm(q1yz);
+                        this.compNorm(x + 1, y + 1, z);
+                        this.compNorm(x + 1, y + 1, z + 1);
                         this.VIntZ(q1y * 3, this.vlist, this.nlist, 30, isolevel, fx2, fy2, fz, field3, field7);
 
                     }
 
                     if ((bits & 2048) != 0) {
 
-                        this.compNorm(qy);
-                        this.compNorm(qyz);
+                        this.compNorm(x, y + 1, z);
+                        this.compNorm(x, y + 1, z + 1);
                         this.VIntZ(qy * 3, this.vlist, this.nlist, 33, isolevel, fx, fy2, fz, field2, field6);
 
                     }
@@ -459,23 +459,46 @@ public class Metaball extends PApplet {
         sh.normal(norm[o3], norm[o3 + 1], norm[o3 + 2]);
         sh.vertex(pos[o3], pos[o3 + 1], pos[o3 + 2]);
     }
-
+/*
     private void compNorm(int q) {
-// todo try gradient
         int q3 = q * 3;
 
         if (this.normal_cache[q3] == 0.0) {
 
             for (Blobs blob : blobs) {
-
+                // calc normal from field strength at grid points and cache
+                this.normal_cache[q3] += this.field[q - 1] - this.field[q + 1];
+                this.normal_cache[q3 + 1] += this.field[q - this.yd] - this.field[q + this.yd];
+                this.normal_cache[q3 + 2] += this.field[q - this.zd] - this.field[q + this.zd];
             }
-            // calc normal from field strength at grid points and cache
-            this.normal_cache[q3] = this.field[q - 1] - this.field[q + 1];
-            this.normal_cache[q3 + 1] = this.field[q - this.yd] - this.field[q + this.yd];
-            this.normal_cache[q3 + 2] = this.field[q - this.zd] - this.field[q + this.zd];
 
         }
 
+    }*/
+
+    private void compNorm(int x, int y, int z) {
+        int z_offset = this.size2 * z;
+        int y_offset = z_offset + this.size * y;
+
+        int q = y_offset + x;
+        int q3 = q * 3;
+
+        if (this.normal_cache[q3] == 0.0 && this.normal_cache[q3 + 1] == 0.0 && this.normal_cache[q3 + 2] == 0.0) {
+
+            for (Blobs blob : blobs) {
+                float xDist = blob.x - x;
+                float yDist = blob.y - y;
+                float zDist = blob.z - z;
+                float r = xDist * xDist + yDist * yDist + zDist * zDist; //distance square
+
+                float f = 1 / (r * r);
+
+                // calc normal from field strength at grid points and cache
+                this.normal_cache[q3] -= f * xDist;
+                this.normal_cache[q3 + 1] -= f * yDist;
+                this.normal_cache[q3 + 2] -= f * zDist;
+            }
+        }
     }
 
     /*

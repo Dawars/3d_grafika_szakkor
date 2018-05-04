@@ -24,7 +24,7 @@ public class Blobs {
         this.x = random.nextInt(maxX) - minX;
         this.y = random.nextInt(maxY) - minY;
         this.z = random.nextInt(maxZ) - minZ;
-        this.strength = 4;
+        this.strength = 100;
 
         PVector dir = PVector.random3D();
         velX = dir.x;
