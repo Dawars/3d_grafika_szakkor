@@ -107,7 +107,7 @@ public class Blobs {
             float f = 1 / (r * r);
             normal.add(xDist * f, yDist * f, zDist * f);
         }
-        return normal.mult(2);
+        return normal.mult(-2);
     }
 
 

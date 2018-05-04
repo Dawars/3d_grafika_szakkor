@@ -14,6 +14,7 @@ varying vec4 vertColor; // color
 varying vec4 vertTexCoord; // texture
 varying vec3 ecNormal; // normal
 varying vec3 ecPosition; // position
+varying vec3 worldPosition; // position
 varying vec3 lightDir; // light
 
 void main() {
@@ -22,6 +23,7 @@ void main() {
 
     // camera space
     ecPosition = vec3(modelview * position); // eye coordinates
+    worldPosition=position.xyz;
 
     // vertex color
     vertColor = color;

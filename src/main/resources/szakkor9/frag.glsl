@@ -10,6 +10,7 @@ varying vec4 vertColor; // color
 varying vec4 vertTexCoord; // texture
 varying vec3 ecNormal; // normal
 varying vec3 ecPosition; // position
+varying vec3 worldPosition; // position
 varying vec3 lightDir; // light
 
 const float kA=0.1;
@@ -40,7 +41,9 @@ void main() {
     vec3 tangent2 = cross(normal, vec3(0.0, 1.0, 0.0));
     vec3 tangent = length(tangent1) < length(tangent2) ? tangent2 : tangent1;
     vec3 bitangent = cross(tangent, normal);
-    vec3 noisegrad = snoiseGrad(100.0*vec3(vertTexCoord.xy, 0.0));
+
+    vec3 noisegrad = snoiseGrad(worldPosition);
+
     normal = normalize(normal + 0.1*noisegrad);
 
 //  gl_FragColor = vec4( vertTexCoord.st, 0, 1);
