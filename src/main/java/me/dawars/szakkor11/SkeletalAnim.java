@@ -1,10 +1,13 @@
-package me.dawars.szakkor12;
+package me.dawars.szakkor11;
 
-import com.jogamp.opengl.GL2ES2;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+
 import com.jogamp.opengl.GL3;
+import com.jogamp.opengl.GL4;
 import processing.core.PApplet;
-import processing.core.PShape;
-import processing.core.PShapeOBJ;
 import processing.core.PVector;
 import processing.data.JSONArray;
 import processing.event.KeyEvent;
@@ -12,9 +15,8 @@ import processing.opengl.PJOGL;
 import processing.opengl.PShader;
 import processing.opengl.PShapeOpenGL;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 public class SkeletalAnim extends PApplet {
 
@@ -39,17 +41,61 @@ public class SkeletalAnim extends PApplet {
         pixelDensity(2);
     }
 
+    PJOGL pgl;
+    GL4 gl;
+
+    float a;
+
+    float[] positions;
+    float[] colors;
+    int[] indices;
+
+    FloatBuffer posBuffer;
+    FloatBuffer colorBuffer;
+    IntBuffer indexBuffer;
+
+    int posVboId;
+    int colorVboId;
+    int indexVboId;
+
+    int posLoc;
+    int colorLoc;
+
     @Override
     public void setup() {
         hand = (PShapeOpenGL) loadShape("models/mano/hand_mean.obj");
-        shader = loadShader("szakkor12/frag.glsl", "szakkor12/vert.glsl");
+        shader = loadShader("szakkor11/frag.glsl", "szakkor11/vert.glsl");
 
-        PShapeOBJ mano;
-        try {
-            mano = new PShapeOBJ(this, new BufferedReader(new FileReader("models/mano/hand_mean.obj")));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+// low opengl
+
+        positions = new float[32];
+        colors = new float[32];
+        indices = new int[12];
+
+        posBuffer = FloatBuffer.allocate(32);
+        colorBuffer = FloatBuffer.allocate(32);
+        indexBuffer = IntBuffer.allocate(12);
+
+        pgl = (PJOGL) beginPGL();
+        gl = pgl.gl.getGL4();
+
+        // Get GL ids for all the buffers
+        IntBuffer intBuffer = IntBuffer.allocate(3);
+        gl.glGenBuffers(3, intBuffer);
+        posVboId = intBuffer.get(0);
+        colorVboId = intBuffer.get(1);
+        indexVboId = intBuffer.get(2);
+
+        // Get the location of the attribute variables.
+        shader.bind();
+        posLoc = gl.glGetAttribLocation(shader.glProgram, "position");
+        colorLoc = gl.glGetAttribLocation(shader.glProgram, "color");
+        shader.unbind();
+
+        endPGL();
+
+
+        // load hand
 
 
         jointsJSON = loadJSONArray("models/mano/joints.json");
@@ -94,41 +140,8 @@ public class SkeletalAnim extends PApplet {
 
         scale(1, -1, 1);
 
-
-        rotateY(angle);
-        for (PVector light : lights) {
-            pushMatrix();
-            float x = light.x /* cos(angle)*/;
-            float y = light.y /* sin(angle)*/;
-            float z = light.z /* sin(angle)*/;
-
-            pointLight(255, 255, 255, x, y, z);
-            translate(x, y, z);
-            sphere(1);
-
-            popMatrix();
-        }
-//        rotateX(-PI / 4f);
-
-        scale(10);
-
-
-        // jointsJSON
-        for (float[] joint : joints) {
-
-            pushMatrix();
-            translate(joint[0], joint[1], joint[2]);
-            strokeWeight(0.1f);
-            renderAxis(1);
-            popMatrix();
-        }
-
-        // hand
-        strokeWeight(0.3f);
-        renderAxis(10);
-
         shader(shader);
-        shape(hand);
+
 
         angle += 0.01f;
 
