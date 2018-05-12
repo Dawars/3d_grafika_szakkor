@@ -125,7 +125,7 @@ public class ModelRender extends PApplet {
 
         background(0);
         resetShader();
-        camera(0, 100, 300, 0, 0, 0, 0, -1, 0);
+        camera(0, 50, 100, 0, 0, 0, 0, -1, 0);
         beginCamera();
         rotateY(angle);
         endCamera();
@@ -169,16 +169,16 @@ public class ModelRender extends PApplet {
         model.apply(pg.cameraInv);
 //        modelInv.apply(model);
 //        modelInv.invert();
-        model.print();
-        System.out.println(cameraPos);*/
-        PVector cameraPos = new PVector(pg.camera.m03, -pg.camera.m13, pg.camera.m23);
+        model.print();*/
+        PVector cameraPos = new PVector(0,50,100);
+        System.out.println(cameraPos);
 
         reflectShader.set("view", pg.camera);
         reflectShader.set("viewInv", pg.cameraInv);
         reflectShader.set("cameraPos", cameraPos);
-        shape(sphere);
+//        shape(sphere);
 
-
+        rotateY(PI);
 //        radioShape.setTexture(radioTexture);
         shape(radioShape);
 

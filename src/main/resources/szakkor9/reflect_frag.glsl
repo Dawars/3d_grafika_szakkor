@@ -6,7 +6,7 @@ in vec3 worldNormal;
 
 in vec3 ecNormal;
 in vec3 ecPosition;
-//in vec3 worldPosition; // position
+in vec3 worldPosition; // position
 
 vec3 snoiseGrad(vec3 r) {
     vec3 s = vec3(7502, 22777, 4767);
@@ -22,11 +22,11 @@ void main() {
 
 //    vec3 normal=normalize(ecNormal);
 
-//    vec3 I = normalize(worldPosition - cameraPos);
-//    vec3 R = reflect(I, worldNormal);
-
-//    vec3 color = vec3(textureCube(cubemap, R));
+    vec3 I = normalize(worldPosition - cameraPos);
+    vec3 R = reflect(I, worldNormal);
+//    R.y*=-1;
+    vec3 color = vec3(textureCube(cubemap, R));
 //    vec3 color = vec3(worldNormal); // world normal
 
-  gl_FragColor = vec4(worldNormal, 1.0);
+  gl_FragColor = vec4(color, 1.0);
 }
