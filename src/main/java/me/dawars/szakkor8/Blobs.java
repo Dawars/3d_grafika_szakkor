@@ -2,8 +2,12 @@ package me.dawars.szakkor8;
 
 import processing.core.PVector;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import static java.lang.Math.cos;
+import static java.lang.StrictMath.sin;
 
 public class Blobs {
     public float x, y, z, velX, velY, velZ;
@@ -24,7 +28,7 @@ public class Blobs {
         this.x = random.nextInt(maxX) - minX;
         this.y = random.nextInt(maxY) - minY;
         this.z = random.nextInt(maxZ) - minZ;
-        this.strength = 100;
+        this.strength = 4;
 
         PVector dir = PVector.random3D();
         velX = dir.x;
@@ -73,14 +77,15 @@ public class Blobs {
         return 1 / r;
     }
 
-    public static void fieldStrength(List<Blobs> blobs, float[][][] field) {
+    public static void fieldStrength(List<Blobs> blobs, float[][][] field, PVector[][][] normal) {
 //        if(field == null) field = new float[16][16][16]; // can be output?
 
         for (int x = 0; x < 16; x++) {
             for (int y = 0; y < 16; y++) {
                 for (int z = 0; z < 16; z++) {
                     field[x][y][z] = 0;
-                    for (int i = 0; i < blobs.size(); i++) {
+                    normal[x][y][z] = new PVector(0, 0, 0);
+                    /*for (int i = 0; i < blobs.size(); i++) {
                         float xDist = blobs.get(i).x - x;
                         float yDist = blobs.get(i).y - y;
                         float zDist = blobs.get(i).z - z;
@@ -88,27 +93,13 @@ public class Blobs {
 
                         int strength = blobs.get(i).strength;
                         field[x][y][z] += strength / r;
-                    }
+
+                        normal[x][y][z].add(new PVector(2 * xDist, 2 * yDist, 2 * zDist).mult(-1/(r*r)));
+                        //field[x][y][z] = (float)(8 * Math.sin((float)x) + 8 *Math.cos((float)z));
+                    }*/
+                    field[x][y][z] = (float) (sin(x) + cos(z)-y);
                 }
             }
         }
     }
-
-    public static PVector normal(float x, float y, float z, List<Blobs> blobs) {
-
-        PVector normal = new PVector(0, 0, 0);
-
-        for (Blobs blob : blobs) {
-            float xDist = blob.x - x;
-            float yDist = blob.y - y;
-            float zDist = blob.z - z;
-            float r = xDist * xDist + yDist * yDist + zDist * zDist; //distance square
-
-            float f = 1 / (r * r);
-            normal.add(xDist * f, yDist * f, zDist * f);
-        }
-        return normal.mult(-2);
-    }
-
-
 }

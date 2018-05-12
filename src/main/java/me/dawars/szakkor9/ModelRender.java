@@ -1,22 +1,21 @@
 package me.dawars.szakkor9;
 
-import processing.core.PApplet;
-import processing.core.PImage;
-import processing.core.PShape;
-import processing.core.PVector;
+import processing.core.*;
 import processing.opengl.PGL;
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.PShader;
+import processing.opengl.PShapeOpenGL;
 
 import java.nio.IntBuffer;
 
 public class ModelRender extends PApplet {
-    private PShape radioShape, sphere;
+    private PShape radioShape, cube, sphere;
     private PImage radioTexture;
-    private PShader shader, shaderBg;
+    private PShader shader, reflectShader;
     private float angle;
     private PImage[] cubeMap;
     private PGraphicsOpenGL pg;
+    private PShader skyboxShader;
 
     public static void main(String[] args) {
         PApplet.main(ModelRender.class);
@@ -28,26 +27,57 @@ public class ModelRender extends PApplet {
         pixelDensity(2);
     }
 
+    // Returns an array of colours in argb format
+// The array is created if rgba is null or of different length
+    void toRGBa(PImage img) {
+        img.loadPixels();
+        int[] argb = img.pixels;
+        int[] rgba = new int[argb.length];
+//        int i = 0;
+//        for (int p : argb) rgba[i++] = p << 8 | p >>> 24;
+
+
+        for (int j = 0; j < argb.length; j++) {
+            int pixel = argb[j];
+            rgba[j] = 0xFF000000 | ((pixel & 0xFF) << 16) | ((pixel & 0xFF0000) >> 16) | (pixel & 0x0000FF00);
+        }
+
+        img.pixels = rgba;
+        img.updatePixels();
+    }
+
     @Override
     public void setup() {
+        hint(DISABLE_OPTIMIZED_STROKE); // https://github.com/processing/processing/wiki/Advanced-OpenGL#vertex-coordinates-are-in-model-space
+
         textureMode(NORMAL);
-        radioShape = loadShape("models/radio.obj");
-        radioTexture = loadImage("models/radio.png");
+        noStroke();
+
+        radioShape = loadShape("models/radio/radio.obj");
+        radioTexture = loadImage("models/radio/radio.png");
         shader = loadShader("szakkor9/frag.glsl", "szakkor9/vert.glsl");
 
-        shaderBg = loadShader("szakkor9/bg_frag.glsl", "szakkor9/bg_vert.glsl");
+        skyboxShader = loadShader("szakkor9/skybox_frag.glsl", "szakkor9/skybox_vert.glsl");
 
+        reflectShader = loadShader("szakkor9/reflect_frag.glsl", "szakkor9/reflect_vert.glsl");
+
+//        cubeMap = new PImage[6];
         cubeMap = new PImage[]{
-                loadImage("szakkor9/posx512.jpg"),
-                loadImage("szakkor9/negx512.jpg"),
-                loadImage("szakkor9/posy512.jpg"),
-                loadImage("szakkor9/negy512.jpg"),
-                loadImage("szakkor9/posz512.jpg"),
-                loadImage("szakkor9/negz512.jpg"),
+                loadImage("szakkor9/px.png"),
+                loadImage("szakkor9/nx.png"),
+                loadImage("szakkor9/py.png"),
+                loadImage("szakkor9/ny.png"),
+                loadImage("szakkor9/pz.png"),
+                loadImage("szakkor9/nz.png"),
         };
 
-        sphere = createShape(SPHERE, 150);
+        for (PImage img : cubeMap) {
+            toRGBa(img);
+        }
 
+
+        cube = createShape(BOX, 5000);
+        sphere = createShape(SPHERE, 50);
 
         PGL pgl = beginPGL();
 // create the OpenGL-based cubeMap
@@ -66,28 +96,26 @@ public class ModelRender extends PApplet {
 //Load in textures
         IntBuffer glTextureId = IntBuffer.allocate(1);
 
-        String[] textureNames = {"posx512.jpg", "negx512.jpg", "posy512.jpg", "negy512.jpg", "posz512.jpg", "negz512.jpg"};
-        PImage[] textures = new PImage[textureNames.length];
-        for (int i = 0; i < textures.length; i++) {
-            textures[i] = loadImage("szakkor9/" + textureNames[i]);
-
-            //Uncomment this for smoother reflections. This downsamples the textures
-            // textures[i].resize(20,20);
-        }
 
 // put the textures in the cubeMap
-        for (int i = 0; i < textures.length; i++) {
-            int w = textures[i].width;
-            int h = textures[i].height;
-            textures[i].loadPixels();
-            int[] pix = textures[i].pixels;
+        for (int i = 0; i < cubeMap.length; i++) {
+//            cubeMap[i].resize(512, 512); // for performance
+//            cubeMap[i].resize(20, 20); // for smooth reflections
+
+            int w = cubeMap[i].width;
+            int h = cubeMap[i].height;
+            cubeMap[i].loadPixels();
+            int[] pix = cubeMap[i].pixels;
             pgl.texImage2D(PGL.TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, PGL.RGBA, w, h, 0, PGL.RGBA, PGL.UNSIGNED_BYTE, java.nio.IntBuffer.wrap(pix));
         }
 
         endPGL();
 
 // Load cubemap shader.
-        shaderBg.set("cubemap", 1);
+        reflectShader.set("cubemap", 1);
+        skyboxShader.set("cubemap", 1);
+
+        pg = (PGraphicsOpenGL) this.g;
     }
 
     private PVector[] lights = {new PVector(100, 80, -100)};
@@ -97,16 +125,17 @@ public class ModelRender extends PApplet {
 
         background(0);
         resetShader();
-
-        camera(0, -100, 300, 0, 0, 0, 0, 1, 0);
-
-        scale(1, -1, 1);
-
-
+        camera(0, 100, 300, 0, 0, 0, 0, -1, 0);
+        beginCamera();
         rotateY(angle);
+        endCamera();
 
-//        shaderBg.set("rayDirMat", pg.camera projmodelview.invert());
 
+//skybox
+//        rotateY(angle);
+
+        shader(skyboxShader);
+        shape(cube);
 
         for (PVector light : lights) {
             pushMatrix();
@@ -122,21 +151,38 @@ public class ModelRender extends PApplet {
         }
 //        rotateX(-PI / 4f);
 
+//        rotateZ(angle);
 
-        scale(2);
-        shader(shaderBg);
+        shader(reflectShader);
 
-        shaderBg.set("perturb", 0f);
-        noStroke();
-        sphere(150);
+/*
+        System.out.println("ModelView");
+//        pg.modelview.translate(360, 360, 500);
+//        pg.updateProjmodelview();
+        pg.modelview.print();
+        System.out.println("View/Camera");
+        pg.camera.print();
+        System.out.println("Model");
+        PMatrix3D model = new PMatrix3D();
+//        PMatrix3D modelInv = new PMatrix3D();
+        model.apply(pg.modelview);
+        model.apply(pg.cameraInv);
+//        modelInv.apply(model);
+//        modelInv.invert();
+        model.print();
+        System.out.println(cameraPos);*/
+        PVector cameraPos = new PVector(pg.camera.m03, -pg.camera.m13, pg.camera.m23);
 
-        shader(shaderBg);
-        shaderBg.set("perturb", 1f);
+        reflectShader.set("view", pg.camera);
+        reflectShader.set("viewInv", pg.cameraInv);
+        reflectShader.set("cameraPos", cameraPos);
+        shape(sphere);
 
-        radioShape.setTexture(radioTexture);
+
+//        radioShape.setTexture(radioTexture);
         shape(radioShape);
 
 
-        angle += 0.01f;
+        angle += 0.005f;
     }
 }

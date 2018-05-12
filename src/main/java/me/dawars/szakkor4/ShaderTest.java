@@ -64,7 +64,7 @@ public class ShaderTest extends PApplet {
         rotateY(angle);
         angle+= 0.1f;
         shape(cylinder);
-
+//filter();
         /*beginShape(QUADS);
 
 //        fill(255, 0, 255);
