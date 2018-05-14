@@ -4,11 +4,10 @@ import processing.core.*;
 import processing.opengl.PGL;
 import processing.opengl.PGraphicsOpenGL;
 import processing.opengl.PShader;
-import processing.opengl.PShapeOpenGL;
 
 import java.nio.IntBuffer;
 
-public class ModelRender extends PApplet {
+public class EnvMapping extends PApplet {
     private PShape radioShape, cube, sphere;
     private PImage radioTexture;
     private PShader shader, reflectShader;
@@ -18,13 +17,14 @@ public class ModelRender extends PApplet {
     private PShader skyboxShader;
 
     public static void main(String[] args) {
-        PApplet.main(ModelRender.class);
+        PApplet.main(EnvMapping.class);
     }
 
     @Override
     public void settings() {
         size(720, 720, P3D);
         pixelDensity(2);
+        fullScreen();
     }
 
     // Returns an array of colours in argb format
@@ -48,7 +48,7 @@ public class ModelRender extends PApplet {
 
     @Override
     public void setup() {
-        hint(DISABLE_OPTIMIZED_STROKE); // https://github.com/processing/processing/wiki/Advanced-OpenGL#vertex-coordinates-are-in-model-space
+//        hint(DISABLE_OPTIMIZED_STROKE); // https://github.com/processing/processing/wiki/Advanced-OpenGL#vertex-coordinates-are-in-model-space
 
         textureMode(NORMAL);
         noStroke();
@@ -56,7 +56,6 @@ public class ModelRender extends PApplet {
         radioShape = loadShape("models/radio/radio.obj");
         radioTexture = loadImage("models/radio/radio.png");
         shader = loadShader("szakkor9/frag.glsl", "szakkor9/vert.glsl");
-
         skyboxShader = loadShader("szakkor9/skybox_frag.glsl", "szakkor9/skybox_vert.glsl");
 
         reflectShader = loadShader("szakkor9/reflect_frag.glsl", "szakkor9/reflect_vert.glsl");
@@ -70,6 +69,7 @@ public class ModelRender extends PApplet {
                 loadImage("szakkor9/pz.png"),
                 loadImage("szakkor9/nz.png"),
         };
+//        radioShape.setTexture(cubeMap[0]);
 
         for (PImage img : cubeMap) {
             toRGBa(img);
@@ -79,11 +79,11 @@ public class ModelRender extends PApplet {
         cube = createShape(BOX, 5000);
         sphere = createShape(SPHERE, 50);
 
-        PGL pgl = beginPGL();
+        PGL pgl = beginPGL(); // advanced OpenGl
 // create the OpenGL-based cubeMap
         IntBuffer envMapTextureID = IntBuffer.allocate(1);
         pgl.genTextures(1, envMapTextureID);
-        pgl.activeTexture(PGL.TEXTURE1);
+        pgl.activeTexture(PGL.TEXTURE2);
         pgl.enable(PGL.TEXTURE_CUBE_MAP);
         pgl.bindTexture(PGL.TEXTURE_CUBE_MAP, envMapTextureID.get(0));
         pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_WRAP_S, PGL.CLAMP_TO_EDGE);
@@ -112,8 +112,8 @@ public class ModelRender extends PApplet {
         endPGL();
 
 // Load cubemap shader.
-        reflectShader.set("cubemap", 1);
-        skyboxShader.set("cubemap", 1);
+        reflectShader.set("cubemap", 2);
+        skyboxShader.set("cubemap", 2);
 
         pg = (PGraphicsOpenGL) this.g;
     }
@@ -125,7 +125,7 @@ public class ModelRender extends PApplet {
 
         background(0);
         resetShader();
-        camera(0, 50, 100, 0, 0, 0, 0, -1, 0);
+        camera(0, 50, 150, 0, 0, 0, 0, -1, 0);
         beginCamera();
         rotateY(angle);
         endCamera();
@@ -153,6 +153,7 @@ public class ModelRender extends PApplet {
 
 //        rotateZ(angle);
 
+        texture(radioTexture);
         shader(reflectShader);
 
 /*
@@ -170,13 +171,13 @@ public class ModelRender extends PApplet {
 //        modelInv.apply(model);
 //        modelInv.invert();
         model.print();*/
-        PVector cameraPos = new PVector(0,50,100);
-        System.out.println(cameraPos);
+        PVector cameraPos = new PVector(0, 50, 100);
+//        System.out.println(cameraPos);
 
-        reflectShader.set("view", pg.camera);
-        reflectShader.set("viewInv", pg.cameraInv);
-        reflectShader.set("cameraPos", cameraPos);
-//        shape(sphere);
+//        reflectShader.set("view", pg.camera);
+//        reflectShader.set("viewInv", pg.cameraInv);
+//        reflectShader.set("cameraPos", pg.camera.m03, pg.camera.m13, pg.camera.m23);
+        shape(sphere);
 
         rotateY(PI);
 //        radioShape.setTexture(radioTexture);
