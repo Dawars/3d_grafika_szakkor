@@ -4,6 +4,7 @@ precision mediump int;
 #endif
 
 uniform sampler2D texture;
+uniform samplerCube cubemap;
 
 varying vec4 vertColor; // color
 varying vec4 vertTexCoord; // texture
@@ -55,6 +56,8 @@ void main() {
         kD * attenuation * lambertian * diffuseColor + // diffuse
         kS * attenuation * specular * vec3(1.0)
         ;
+
+    vec4 a= texture(cubemap, normalize(ecPosition));
 
     gl_FragColor = vec4(color, 1);
     //gl_FragColor = vec4(attenuation, attenuation, attenuation, 1);

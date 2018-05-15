@@ -156,27 +156,10 @@ public class EnvMapping extends PApplet {
         texture(radioTexture);
         shader(reflectShader);
 
-/*
-        System.out.println("ModelView");
-//        pg.modelview.translate(360, 360, 500);
-//        pg.updateProjmodelview();
-        pg.modelview.print();
-        System.out.println("View/Camera");
-        pg.camera.print();
-        System.out.println("Model");
-        PMatrix3D model = new PMatrix3D();
-//        PMatrix3D modelInv = new PMatrix3D();
-        model.apply(pg.modelview);
-        model.apply(pg.cameraInv);
-//        modelInv.apply(model);
-//        modelInv.invert();
-        model.print();*/
-        PVector cameraPos = new PVector(0, 50, 100);
-//        System.out.println(cameraPos);
 
-//        reflectShader.set("view", pg.camera);
-//        reflectShader.set("viewInv", pg.cameraInv);
-//        reflectShader.set("cameraPos", pg.camera.m03, pg.camera.m13, pg.camera.m23);
+        reflectShader.set("view", pg.camera);
+        reflectShader.set("viewInv", pg.cameraInv);
+        reflectShader.set("cameraPos", pg.modelviewInv.m03, pg.modelviewInv.m13, pg.modelviewInv.m23);
         shape(sphere);
 
         rotateY(PI);
