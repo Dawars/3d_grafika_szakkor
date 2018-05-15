@@ -8,12 +8,15 @@ import processing.opengl.PShader;
 import java.nio.IntBuffer;
 
 public class EnvMapping extends PApplet {
-    private PShape radioShape, cube, sphere;
-    private PImage radioTexture;
-    private PShader shader, reflectShader;
     private float angle;
-    private PImage[] cubeMap;
     private PGraphicsOpenGL pg;
+
+    private PShape radioShape, cube, sphere;
+
+    private PImage[] cubeMap;
+    private PImage radioTexture;
+
+    private PShader reflectShader;
     private PShader skyboxShader;
 
     public static void main(String[] args) {
@@ -28,14 +31,10 @@ public class EnvMapping extends PApplet {
     }
 
     // Returns an array of colours in argb format
-// The array is created if rgba is null or of different length
     void toRGBa(PImage img) {
         img.loadPixels();
         int[] argb = img.pixels;
         int[] rgba = new int[argb.length];
-//        int i = 0;
-//        for (int p : argb) rgba[i++] = p << 8 | p >>> 24;
-
 
         for (int j = 0; j < argb.length; j++) {
             int pixel = argb[j];
@@ -48,19 +47,19 @@ public class EnvMapping extends PApplet {
 
     @Override
     public void setup() {
-//        hint(DISABLE_OPTIMIZED_STROKE); // https://github.com/processing/processing/wiki/Advanced-OpenGL#vertex-coordinates-are-in-model-space
-
         textureMode(NORMAL);
         noStroke();
 
+        cube = createShape(BOX, 5000); // skybox
+        sphere = createShape(SPHERE, 50); // test object
+
         radioShape = loadShape("models/radio/radio.obj");
         radioTexture = loadImage("models/radio/radio.png");
-        shader = loadShader("szakkor9/frag.glsl", "szakkor9/vert.glsl");
-        skyboxShader = loadShader("szakkor9/skybox_frag.glsl", "szakkor9/skybox_vert.glsl");
+//        radioShape.setTexture(radioTexture);  // doesn't work on mac yet
 
+        skyboxShader = loadShader("szakkor9/skybox_frag.glsl", "szakkor9/skybox_vert.glsl");
         reflectShader = loadShader("szakkor9/reflect_frag.glsl", "szakkor9/reflect_vert.glsl");
 
-//        cubeMap = new PImage[6];
         cubeMap = new PImage[]{
                 loadImage("szakkor9/px.png"),
                 loadImage("szakkor9/nx.png"),
@@ -69,21 +68,16 @@ public class EnvMapping extends PApplet {
                 loadImage("szakkor9/pz.png"),
                 loadImage("szakkor9/nz.png"),
         };
-//        radioShape.setTexture(cubeMap[0]);
 
         for (PImage img : cubeMap) {
             toRGBa(img);
         }
 
 
-        cube = createShape(BOX, 5000);
-        sphere = createShape(SPHERE, 50);
-
         PGL pgl = beginPGL(); // advanced OpenGl
-// create the OpenGL-based cubeMap
         IntBuffer envMapTextureID = IntBuffer.allocate(1);
         pgl.genTextures(1, envMapTextureID);
-        pgl.activeTexture(PGL.TEXTURE2);
+        pgl.activeTexture(PGL.TEXTURE1);
         pgl.enable(PGL.TEXTURE_CUBE_MAP);
         pgl.bindTexture(PGL.TEXTURE_CUBE_MAP, envMapTextureID.get(0));
         pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_WRAP_S, PGL.CLAMP_TO_EDGE);
@@ -93,13 +87,9 @@ public class EnvMapping extends PApplet {
         pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_MAG_FILTER, PGL.LINEAR);
 
 
-//Load in textures
-        IntBuffer glTextureId = IntBuffer.allocate(1);
-
-
-// put the textures in the cubeMap
+        // put the textures in the cubeMap
         for (int i = 0; i < cubeMap.length; i++) {
-//            cubeMap[i].resize(512, 512); // for performance
+//            cubeMap[i].resize(256, 256); // for performance
 //            cubeMap[i].resize(20, 20); // for smooth reflections
 
             int w = cubeMap[i].width;
@@ -111,9 +101,9 @@ public class EnvMapping extends PApplet {
 
         endPGL();
 
-// Load cubemap shader.
-        reflectShader.set("cubemap", 2);
-        skyboxShader.set("cubemap", 2);
+        // Load cubemap shader.
+        reflectShader.set("cubemap", 1);
+        skyboxShader.set("cubemap", 1);
 
         pg = (PGraphicsOpenGL) this.g;
     }
@@ -131,12 +121,11 @@ public class EnvMapping extends PApplet {
         endCamera();
 
 
-//skybox
-//        rotateY(angle);
-
+        //skybox
         shader(skyboxShader);
         shape(cube);
 
+        // lights
         for (PVector light : lights) {
             pushMatrix();
             float x = light.x /* cos(angle)*/;
@@ -149,23 +138,17 @@ public class EnvMapping extends PApplet {
 
             popMatrix();
         }
-//        rotateX(-PI / 4f);
 
-//        rotateZ(angle);
+//        scale(2);
 
-        texture(radioTexture);
         shader(reflectShader);
-
 
         reflectShader.set("view", pg.camera);
         reflectShader.set("viewInv", pg.cameraInv);
         reflectShader.set("cameraPos", pg.modelviewInv.m03, pg.modelviewInv.m13, pg.modelviewInv.m23);
+
         shape(sphere);
-
-        rotateY(PI);
-//        radioShape.setTexture(radioTexture);
         shape(radioShape);
-
 
         angle += 0.005f;
     }
