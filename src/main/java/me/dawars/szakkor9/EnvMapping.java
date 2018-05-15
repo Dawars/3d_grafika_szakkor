@@ -48,7 +48,7 @@ public class EnvMapping extends PApplet {
     @Override
     public void setup() {
         textureMode(NORMAL);
-        noStroke();
+//        noStroke(); // todo uncomment
 
         cube = createShape(BOX, 5000); // skybox
         sphere = createShape(SPHERE, 50); // test object
@@ -61,12 +61,12 @@ public class EnvMapping extends PApplet {
         reflectShader = loadShader("szakkor9/reflect_frag.glsl", "szakkor9/reflect_vert.glsl");
 
         cubeMap = new PImage[]{
-                loadImage("szakkor9/px.png"),
-                loadImage("szakkor9/nx.png"),
-                loadImage("szakkor9/py.png"),
-                loadImage("szakkor9/ny.png"),
-                loadImage("szakkor9/pz.png"),
-                loadImage("szakkor9/nz.png"),
+                loadImage("szakkor9/witcher_px.png"),
+                loadImage("szakkor9/witcher_nx.png"),
+                loadImage("szakkor9/witcher_py.png"),
+                loadImage("szakkor9/witcher_ny.png"),
+                loadImage("szakkor9/witcher_pz.png"),
+                loadImage("szakkor9/witcher_nz.png"),
         };
 
         for (PImage img : cubeMap) {
