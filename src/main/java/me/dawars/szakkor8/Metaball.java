@@ -1,6 +1,8 @@
 package me.dawars.szakkor8;
 
-import processing.core.*;
+import processing.core.PApplet;
+import processing.core.PShape;
+import processing.core.PVector;
 import processing.opengl.PShader;
 
 import java.util.ArrayList;
@@ -13,7 +15,6 @@ public class Metaball extends PApplet {
     private float[][][] field;
     private PVector[][][] normals;
     private float angle;
-    private PImage tex;
 
     public static void main(String[] args) {
         PApplet.main(Metaball.class);
@@ -37,7 +38,7 @@ public class Metaball extends PApplet {
         normals = new PVector[Blobs.maxX - Blobs.minX + 1][Blobs.maxY - Blobs.minY + 1][Blobs.maxZ - Blobs.minZ + 1];
 
         voxelShader = loadShader("szakkor8/frag.glsl", "szakkor8/vert.glsl");
-        tex = loadImage("szakkor4/dirt.jpg");
+
     }
 
     final float scale = 150;
@@ -46,9 +47,9 @@ public class Metaball extends PApplet {
     public void draw() {
         background(127);
 
-        camera(-200, -100, 0, 0, 0, 0, 0, 1, 0);
+        camera(-200, 0, 0, 0, 0, 0, 0, 1, 0);
 
-        pointLight(255, 255, 255, 500, -200, -200);
+        pointLight(255, 255, 255, 500, -500, -500);
         fill(0, 127, 255);
 
         rotateY(angle);
@@ -62,17 +63,17 @@ public class Metaball extends PApplet {
             float z = blob.z * scale / (Blobs.maxX - Blobs.minX) - scale / 2;
             translate(x, y, z);
             strokeWeight(2);
-//            renderAxis(10);
+            renderAxis(10);
 
             popMatrix();
         }
 
         Blobs.fieldStrength(blobs, field, normals);
 
-        final float THRESHOLD = -8;
+        final float THRESHOLD = 1;
 
-//        PShape sh2 = renderVoxelBlobs(field, THRESHOLD);
-        PShape sh = renderMarchingCubes(field, THRESHOLD);
+        PShape sh2 = renderVoxelBlobs(field, THRESHOLD);
+//        PShape sh = renderMarchingCubes(field, THRESHOLD);
 
 
         translate(-scale / 2, -scale / 2, -scale / 2);
@@ -80,22 +81,17 @@ public class Metaball extends PApplet {
                 scale / (Blobs.maxY - Blobs.minY),
                 scale / (Blobs.maxZ - Blobs.minZ));
 
-        noStroke();
-//        shader(voxelShader);
-        shape(sh);
-//        shape(sh2);
+
+        shader(voxelShader);
+//        shape(sh);
+        shape(sh2);
 
         angle += 0.01;
     }
 
     private PShape renderVoxelBlobs(float[][][] field, float threshold) {
         PShape sh = createShape();
-        sh.setTextureMode(NORMAL);
-
         sh.beginShape(QUADS);
-        sh.noStroke();
-        sh.texture(tex);
-
 
         for (int i = Blobs.minX; i <= Blobs.maxX; i++)
             for (int j = Blobs.minY; j <= Blobs.maxY; j++)
@@ -109,8 +105,8 @@ public class Metaball extends PApplet {
                     textSize(1f);
                     fill(strength * 255);
                     if (strength > 1f)
-                        text(strength, x, y, z);
-*/
+                        text(strength, x, y, z);*/
+
                     if (field[i][j][k] >= threshold) { // Cell is in the blob
                         // draw grid points
 /*
@@ -121,52 +117,52 @@ public class Metaball extends PApplet {
 
                         if (j == 15 || field[i][j + 1][k] < threshold) { // neighbour is outside (or at space bound)
                             sh.normal(0, 1, 0);
-                            sh.vertex(i, (j + 1), k, i / 16.f, k / 16.f);
-                            sh.vertex(i, (j + 1), (k + 1), i / 16.f, (k + 1) / 16.f);
-                            sh.vertex((i + 1), (j + 1), (k + 1), (i + 1) / 16.f, (k + 1) / 16.f);
-                            sh.vertex((i + 1), (j + 1), k, (i + 1) / 16.f, k / 16.f);
+                            sh.vertex((i), (j + 1), (k));
+                            sh.vertex((i), (j + 1), (k + 1));
+                            sh.vertex((i + 1), (j + 1), (k + 1));
+                            sh.vertex((i + 1), (j + 1), (k));
 
                         }
 
                         if (j == 0 || (int) field[i][j - 1][k] < threshold) {
                             sh.normal(0, -1, 0);
-                            sh.vertex(i, j, (k + 1), i / 16.f, (k + 1) / 16.f);
-                            sh.vertex(i, j, k, i / 16.f, k / 16.f);
-                            sh.vertex((i + 1), j, k, (i + 1) / 16.f, k / 16.f);
-                            sh.vertex((i + 1), j, (k + 1), (i + 1) / 16.f, (k + 1) / 16.f);
+                            sh.vertex((i), (j), (k + 1));
+                            sh.vertex((i), (j), (k));
+                            sh.vertex((i + 1), (j), (k));
+                            sh.vertex((i + 1), (j), (k + 1));
                         }
 
                         if (k == 15 || (int) field[i][j][k + 1] < threshold) {
                             sh.normal(0, 0, 1);
-                            sh.vertex(i, (j + 1), (k + 1), i / 16.f, (j + 1) / 16.f);
-                            sh.vertex(i, j, (k + 1), i / 16.f, j / 16.f);
-                            sh.vertex((i + 1), j, (k + 1), (i + 1) / 16.f, j / 16.f);
-                            sh.vertex((i + 1), (j + 1), (k + 1), (i + 1) / 16.f, (j + 1) / 16.f);
+                            sh.vertex((i), (j + 1), (k + 1));
+                            sh.vertex((i), (j), (k + 1));
+                            sh.vertex((i + 1), (j), (k + 1));
+                            sh.vertex((i + 1), (j + 1), (k + 1));
 
                         }
                         if (k == 0 || (int) field[i][j][k - 1] < threshold) {
                             sh.normal(0, 0, -1);
-                            sh.vertex((i + 1), (j + 1), k, (i + 1) / 16.f, (j + 1) / 16.f);
-                            sh.vertex((i + 1), j, k, (i + 1) / 16.f, j / 16.f);
-                            sh.vertex(i, j, k, i / 16.f, j / 16.f);
-                            sh.vertex(i, (j + 1), k, i / 16.f, (j + 1) / 16.f);
+                            sh.vertex((i + 1), (j + 1), (k));
+                            sh.vertex((i + 1), (j), (k));
+                            sh.vertex((i), (j), (k));
+                            sh.vertex((i), (j + 1), (k));
                         }
 
                         if (i == 15 || (int) field[i + 1][j][k] < threshold) {
                             sh.normal(1, 0, 0);
-                            sh.vertex((i + 1), (j + 1), (k + 1), (j + 1) / 16.f, (k + 1) / 16.f);
-                            sh.vertex((i + 1), j, (k + 1), j / 16.f, (k + 1) / 16.f);
-                            sh.vertex((i + 1), j, k, j / 16.f, k / 16.f);
-                            sh.vertex((i + 1), (j + 1), k, (j + 1) / 16.f, k / 16.f);
+                            sh.vertex((i + 1), (j + 1), (k + 1));
+                            sh.vertex((i + 1), (j), (k + 1));
+                            sh.vertex((i + 1), (j), (k));
+                            sh.vertex((i + 1), (j + 1), (k));
 
                         }
 
                         if (i == 0 || (int) field[i - 1][j][k] < threshold) {
                             sh.normal(-1, 0, 0);
-                            sh.vertex(i, j, (k + 1), j / 16.f, (k + 1) / 16.f);
-                            sh.vertex(i, (j + 1), (k + 1), (j + 1) / 16.f, (k + 1) / 16.f);
-                            sh.vertex(i, (j + 1), k, (j + 1) / 16.f, k / 16.f);
-                            sh.vertex(i, j, k, j / 16.f, k / 16.f);
+                            sh.vertex((i), (j), (k + 1));
+                            sh.vertex((i), (j + 1), (k + 1));
+                            sh.vertex((i), (j + 1), (k));
+                            sh.vertex((i), (j), (k));
                         }
                     }
                 }
@@ -478,15 +474,7 @@ public class Metaball extends PApplet {
         for (int x = Blobs.minX; x < Blobs.maxX; x++)
             for (int y = Blobs.minY; y < Blobs.maxY; y++)
                 for (int z = Blobs.minZ; z < Blobs.maxZ; z++) {
-                    float i0 = x * scale / (Blobs.maxX - Blobs.minX) - scale / 2;
-                    float j0 = y * scale / (Blobs.maxX - Blobs.minX) - scale / 2;
-                    float k0 = z * scale / (Blobs.maxX - Blobs.minX) - scale / 2;
 
-                   /* textSize(1f);
-                    float strength=field[x][y][z];
-                    fill(strength * 255);
-//                    if (strength > 1f)
-                        text(strength, i0, j0, k0);*/
                     int cubeindex;
                     PVector[] vertlist = new PVector[12];
                     PVector[] normlist = new PVector[12]; // normals

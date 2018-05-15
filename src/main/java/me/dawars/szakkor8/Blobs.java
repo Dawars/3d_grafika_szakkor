@@ -6,9 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static java.lang.Math.cos;
-import static java.lang.StrictMath.sin;
-
 public class Blobs {
     public float x, y, z, velX, velY, velZ;
     public int strength;
@@ -85,7 +82,7 @@ public class Blobs {
                 for (int z = 0; z < 16; z++) {
                     field[x][y][z] = 0;
                     normal[x][y][z] = new PVector(0, 0, 0);
-                    /*for (int i = 0; i < blobs.size(); i++) {
+                    for (int i = 0; i < blobs.size(); i++) {
                         float xDist = blobs.get(i).x - x;
                         float yDist = blobs.get(i).y - y;
                         float zDist = blobs.get(i).z - z;
@@ -95,9 +92,7 @@ public class Blobs {
                         field[x][y][z] += strength / r;
 
                         normal[x][y][z].add(new PVector(2 * xDist, 2 * yDist, 2 * zDist).mult(-1/(r*r)));
-                        //field[x][y][z] = (float)(8 * Math.sin((float)x) + 8 *Math.cos((float)z));
-                    }*/
-                    field[x][y][z] = (float) (sin(x) + cos(z)-y);
+                    }
                 }
             }
         }

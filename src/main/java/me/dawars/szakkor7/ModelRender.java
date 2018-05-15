@@ -26,14 +26,11 @@ public class ModelRender extends PApplet {
     @Override
     public void setup() {
         textureMode(NORMAL);
-        radioShape = loadShape("models/radio.obj");
-        radioTexture = loadImage("models/radio.png");
-        floor = loadImage("models/black_floor_metal_001a.jpg");
-        wall = loadImage("models/white_wall.jpg");
-        shader = loadShader("szakkor4/frag.glsl", "szakkor4/vert.glsl");
+//        radioShape = ; // todo load model
+//        radioTexture = ; // todo load texture
+//        shader = ; // todo load szakkor7 shaders
     }
 
-    private PVector[] lights = {new PVector(100, 80, -100)};
 
     @Override
     public void draw() {
@@ -42,55 +39,37 @@ public class ModelRender extends PApplet {
 
         camera(0, -100, 300, 0, 0, 0, 0, 1, 0);
 
-        scale(1, -1, 1);
+        scale(1, -1, 1); // flip coordinate system (+Y up)
 
 
         rotateY(angle);
-        for (PVector light : lights) {
-            pushMatrix();
-            float x = light.x /* cos(angle)*/;
-            float y = light.y /* sin(angle)*/;
-            float z = light.z /* sin(angle)*/;
 
-            pointLight(255, 255, 255, x, y, z);
-            translate(x, y, z);
-            sphere(1);
+        // light
+        pushMatrix();
+        PVector light = new PVector(100, 80, -100);
+        float x = light.x /* cos(angle)*/;
+        float y = light.y /* sin(angle)*/;
+        float z = light.z /* sin(angle)*/;
 
-            popMatrix();
-        }
-//        rotateX(-PI / 4f);
+        pointLight(255, 255, 255, x, y, z);
+        translate(x, y, z);
+        sphere(1);
+        popMatrix();
 
         renderAxis();
 
-
         scale(2);
-        shader(shader);
-        radioShape.setTexture(radioTexture);
-        shape(radioShape);
 
-        // floor
-        beginShape(QUADS);
-        texture(floor);
-        normal(0, 1, 0);
-        vertex(-100, 0, +100, 0, 1);
-        vertex(+100, 0, +100, 1, 1);
-        vertex(+100, 0, -100, 1, 0);
-        vertex(-100, 0, -100, 0, 0);
-        endShape();
-
-        // wall
-        beginShape(QUADS);
-        texture(wall);
-        normal(0, 1, 0);
-        vertex(-100, +100, 100, 0, 1);
-        vertex(+100, +100, 100, 1, 1);
-        vertex(+100, -100, 100, 1, 0);
-        vertex(-100, -100, 100, 0, 0);
-        endShape();
+        shader(shader); // set active shader
+        radioShape.setTexture(radioTexture); // set texture for model
+        shape(radioShape); //  render model
 
         angle += 0.01f;
     }
 
+    /**
+     * Render coordinate axis
+     */
     private void renderAxis() {
         strokeWeight(2);
         stroke(255, 0, 0);
