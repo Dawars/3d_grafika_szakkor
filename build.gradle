@@ -12,7 +12,7 @@ repositories {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
-//    compile group: 'org.processing', name: 'core', version: '3.3.7'
+    compile group: 'org.processing', name: 'core', version: '3.3.7'
 
 //    compile group: 'org.jogamp.jogl', name: 'jogl-all-main', version: '2.3.2'
 }
