@@ -1,4 +1,4 @@
-// vert.glsl
+// normalVert.glsl
 #version 400
 
 uniform mat4 transform;
