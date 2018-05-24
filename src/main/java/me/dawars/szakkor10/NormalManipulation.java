@@ -147,7 +147,7 @@ public class NormalManipulation extends PApplet {
         reflectShader.set("viewInv", pg.cameraInv);
         reflectShader.set("cameraPos", pg.modelviewInv.m03, pg.modelviewInv.m13, pg.modelviewInv.m23);
 
-        shape(sphere);
+//        shape(sphere);
         shape(radioShape);
 
         angle += 0.005f;

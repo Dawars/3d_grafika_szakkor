@@ -18,13 +18,13 @@ out vec4 fragColor;
 vec3 snoiseGrad(vec3 r) {
     vec3 s = vec3(7502, 22777, 4767);
     vec3 f = vec3(0.0, 0.0, 0.0);
-    for(int i=0; i<16; i++) {
-    f += cos( dot(s, r - vec3(32768, 32768, 32768))
-    / 65536.0) * s;
+    for(int i = 0; i < 16; i++) {
+    f += cos( dot(s, r - vec3(32768, 32768, 32768)) / 65536.0) * s;
     s = mod(s, 32768.0) * 2.0 + floor(s / 32768.0);
     }
     return f / 65536.0;
 }
+
 void main() {
 
     vec3 normal=normalize(normalize(ecNormal)+0.1f*snoiseGrad(modelPosition));
