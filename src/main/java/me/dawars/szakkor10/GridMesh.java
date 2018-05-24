@@ -1,6 +1,7 @@
 package me.dawars.szakkor10;
 
 import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL4;
 import processing.core.PApplet;
 import processing.core.PShape;
@@ -14,41 +15,36 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import static processing.core.PApplet.cos;
+import static processing.core.PApplet.sin;
+import static processing.core.PConstants.HALF_PI;
+
 public class GridMesh {
     private PApplet parent;
     private CalculateTerrain callback;
     private PShader shader;
 
-    private final int numVertices;
+    //    private final int numVertices;
     private final int cols, rows, res;
-
-    private PJOGL pgl;
-    private GL4 gl;
-
 
     float[] positions;
     float[] colors;
-    float[] normals;
-    float[] uvs;
     int[] indices;
 
     FloatBuffer posBuffer;
     FloatBuffer colorBuffer;
-    FloatBuffer normalBuffer;
-    FloatBuffer uvBuffer;
     IntBuffer indexBuffer;
+
 
     int posVboId;
     int colorVboId;
-    int normalVboId;
-    int uvVboId;
     int indexVboId;
 
     int posLoc;
     int colorLoc;
-    int normalLoc;
-    int uvLoc;
 
+    PJOGL pgl;
+    GL4 gl;
 
     public GridMesh(PApplet parent) {
         this(parent, 20, 20, 5);
@@ -61,33 +57,32 @@ public class GridMesh {
         this.rows = rows;
         this.res = res;
 
-        numVertices = (cols) * (rows);
-        positions = new float[numVertices * 4];
-        colors = new float[numVertices * 4];
-        normals = new float[numVertices * 3];
-        uvs = new float[numVertices * 2];
-        indices = new int[2 * cols * rows * 3];
 
-        posBuffer = allocateDirectFloatBuffer(numVertices * 4);
-        colorBuffer = allocateDirectFloatBuffer(numVertices * 4);
-        normalBuffer = allocateDirectFloatBuffer(numVertices * 3);
-        uvBuffer = allocateDirectFloatBuffer(numVertices * 2);
-        indexBuffer = allocateDirectIntBuffer(2 * cols * rows * 3);
+        positions = new float[32];
+        colors = new float[32];
+        indices = new int[12];
+
+        posBuffer = allocateDirectFloatBuffer(32);
+        colorBuffer = allocateDirectFloatBuffer(32);
+        indexBuffer = allocateDirectIntBuffer(12);
 
         pgl = (PJOGL) parent.beginPGL();
         gl = pgl.gl.getGL4();
 
         // Get GL ids for all the buffers
-        IntBuffer intBuffer = IntBuffer.allocate(5);
-        gl.glGenBuffers(5, intBuffer);
+        IntBuffer intBuffer = IntBuffer.allocate(3);
+        gl.glGenBuffers(3, intBuffer);
         posVboId = intBuffer.get(0);
         colorVboId = intBuffer.get(1);
-        normalVboId = intBuffer.get(2);
-        uvVboId = intBuffer.get(3);
-        indexVboId = intBuffer.get(4);
+        indexVboId = intBuffer.get(2);
+
+        // Get the location of the attribute variables.
+//        shader.bind();
+//        posLoc = gl.glGetAttribLocation(shader.glProgram, "position");
+//        colorLoc = gl.glGetAttribLocation(shader.glProgram, "color");
+//        shader.unbind();
 
         parent.endPGL();
-
     }
 
     /**
@@ -98,7 +93,6 @@ public class GridMesh {
      */
     public void setTerrainFunctions(CalculateTerrain callback) {
         this.callback = callback;
-        updateGeometry();
     }
 
     /**
@@ -115,21 +109,21 @@ public class GridMesh {
         shader.bind();
         posLoc = gl.glGetAttribLocation(shader.glProgram, "position");
         colorLoc = gl.glGetAttribLocation(shader.glProgram, "color");
-        normalLoc = gl.glGetAttribLocation(shader.glProgram, "normal");
-        uvLoc = gl.glGetAttribLocation(shader.glProgram, "uv");
+//        normalLoc = gl.glGetAttribLocation(shader.glProgram, "normal");
+//        uvLoc = gl.glGetAttribLocation(shader.glProgram, "uv");
         shader.unbind();
 
     }
-
     public void draw() {
+        updateGeometry();
+
+
         pgl = (PJOGL) parent.beginPGL();
         gl = pgl.gl.getGL4();
 
-
+        shader.bind();
         gl.glEnableVertexAttribArray(posLoc);
         gl.glEnableVertexAttribArray(colorLoc);
-        gl.glEnableVertexAttribArray(normalLoc);
-        gl.glEnableVertexAttribArray(uvLoc);
 
         // Copy vertex data to VBOs
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, posVboId);
@@ -139,14 +133,6 @@ public class GridMesh {
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, colorVboId);
         gl.glBufferData(GL.GL_ARRAY_BUFFER, Float.BYTES * colors.length, colorBuffer, GL.GL_DYNAMIC_DRAW);
         gl.glVertexAttribPointer(colorLoc, 4, GL.GL_FLOAT, false, 4 * Float.BYTES, 0);
-
-        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, normalVboId);
-        gl.glBufferData(GL.GL_ARRAY_BUFFER, Float.BYTES * colors.length, normalBuffer, GL.GL_DYNAMIC_DRAW);
-        gl.glVertexAttribPointer(normalLoc, 3, GL.GL_FLOAT, false, 3 * Float.BYTES, 0);
-
-        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, uvVboId);
-        gl.glBufferData(GL.GL_ARRAY_BUFFER, Float.BYTES * colors.length, uvBuffer, GL.GL_STATIC_DRAW);
-        gl.glVertexAttribPointer(uvLoc, 2, GL.GL_FLOAT, false, 2 * Float.BYTES, 0);
 
         gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
 
@@ -158,15 +144,14 @@ public class GridMesh {
 
         gl.glDisableVertexAttribArray(posLoc);
         gl.glDisableVertexAttribArray(colorLoc);
-        gl.glDisableVertexAttribArray(normalLoc);
-        gl.glDisableVertexAttribArray(uvLoc);
+        shader.unbind();
 
         parent.endPGL();
 
     }
 
     void updateGeometry() {
-        int vert = 0;
+       /* int vert = 0;
         for (int z = 0; z < rows; z++) {
             for (int x = 0; x < cols; x++) {
 
@@ -204,6 +189,115 @@ public class GridMesh {
                 indices[index++] = x + (z + 1) * cols + 1;
             }
         }
+*/
+
+        // Vertex 1
+        positions[0] = -200;
+        positions[1] = -200;
+        positions[2] = 0;
+        positions[3] = 1;
+
+        colors[0] = 1.0f;
+        colors[1] = 0.0f;
+        colors[2] = 0.0f;
+        colors[3] = 1.0f;
+
+        // Vertex 2
+        positions[4] = +200;
+        positions[5] = -200;
+        positions[6] = 0;
+        positions[7] = 1;
+
+        colors[4] = 1.0f;
+        colors[5] = 1.0f;
+        colors[6] = 0.0f;
+        colors[7] = 1.0f;
+
+        // Vertex 3
+        positions[8] = -200;
+        positions[9] = +200;
+        positions[10] = 0;
+        positions[11] = 1;
+
+        colors[8] = 0.0f;
+        colors[9] = 1.0f;
+        colors[10] = 0.0f;
+        colors[11] = 1.0f;
+
+        // Vertex 4
+        positions[12] = +200;
+        positions[13] = +200;
+        positions[14] = 0;
+        positions[15] = 1;
+
+        colors[12] = 0.0f;
+        colors[13] = 1.0f;
+        colors[14] = 1.0f;
+        colors[15] = 1.0f;
+
+        // Vertex 5
+        positions[16] = -200;
+        positions[17] = -200 * cos(HALF_PI);
+        positions[18] = -200 * sin(HALF_PI);
+        positions[19] = 1;
+
+        colors[16] = 0.0f;
+        colors[17] = 0.0f;
+        colors[18] = 1.0f;
+        colors[19] = 1.0f;
+
+        // Vertex 6
+        positions[20] = +200;
+        positions[21] = -200 * cos(HALF_PI);
+        positions[22] = -200 * sin(HALF_PI);
+        positions[23] = 1;
+
+        colors[20] = 1.0f;
+        colors[21] = 0.0f;
+        colors[22] = 1.0f;
+        colors[23] = 1.0f;
+
+        // Vertex 7
+        positions[24] = -200;
+        positions[25] = +200 * cos(HALF_PI);
+        positions[26] = +200 * sin(HALF_PI);
+        positions[27] = 1;
+
+        colors[24] = 0.0f;
+        colors[25] = 0.0f;
+        colors[26] = 0.0f;
+        colors[27] = 1.0f;
+
+        // Vertex 8
+        positions[28] = +200;
+        positions[29] = +200 * cos(HALF_PI);
+        positions[30] = +200 * sin(HALF_PI);
+        positions[31] = 1;
+
+        colors[28] = 1.0f;
+        colors[29] = 1.0f;
+        colors[30] = 1.1f;
+        colors[31] = 1.0f;
+
+        // Triangle 1
+        indices[0] = 0;
+        indices[1] = 1;
+        indices[2] = 2;
+
+        // Triangle 2
+        indices[3] = 2;
+        indices[4] = 3;
+        indices[5] = 1;
+
+        // Triangle 3
+        indices[6] = 4;
+        indices[7] = 5;
+        indices[8] = 6;
+
+        // Triangle 4
+        indices[9] = 6;
+        indices[10] = 7;
+        indices[11] = 5;
 
         posBuffer.rewind();
         posBuffer.put(positions);
@@ -213,18 +307,9 @@ public class GridMesh {
         colorBuffer.put(colors);
         colorBuffer.rewind();
 
-        uvBuffer.rewind();
-        uvBuffer.put(uvs);
-        uvBuffer.rewind();
-
-        normalBuffer.rewind();
-        normalBuffer.put(normals);
-        normalBuffer.rewind();
-
         indexBuffer.rewind();
         indexBuffer.put(indices);
         indexBuffer.rewind();
-
     }
 
     public interface CalculateTerrain {
