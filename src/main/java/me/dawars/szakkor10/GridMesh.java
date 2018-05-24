@@ -61,7 +61,7 @@ public class GridMesh {
         this.rows = rows;
         this.res = res;
 
-        numVertices = (cols + 1) * (rows + 1);
+        numVertices = (cols) * (rows);
         positions = new float[numVertices * 4];
         colors = new float[numVertices * 4];
         normals = new float[numVertices * 3];
@@ -170,24 +170,24 @@ public class GridMesh {
         for (int z = 0; z < rows; z++) {
             for (int x = 0; x < cols; x++) {
 
-                positions[vert + 0] = res * x;
-                positions[vert + 1] = callback.getHeightAt(x, z);
-                positions[vert + 2] = res * z;
-                positions[vert + 3] = 1;
+                positions[vert*4 + 0] = res * x;
+                positions[vert*4 + 1] = callback.getHeightAt(x, z);
+                positions[vert*4 + 2] = res * z;
+                positions[vert*4 + 3] = 1;
 
-                colors[vert + 0] = 1.0f;
-                colors[vert + 1] = 1.0f;
-                colors[vert + 2] = 1.0f;
-                colors[vert + 3] = 1.0f;
+                colors[vert*4 + 0] = 1.0f;
+                colors[vert*4 + 1] = 1.0f;
+                colors[vert*4 + 2] = 1.0f;
+                colors[vert*4 + 3] = 1.0f;
 
                 PVector normal = callback.getNormalAt(x, z);
-                normals[vert + 0] = normal.x;
-                normals[vert + 1] = normal.y;
-                normals[vert + 2] = normal.z;
+                normals[vert*3 + 0] = normal.x;
+                normals[vert*3 + 1] = normal.y;
+                normals[vert*3 + 2] = normal.z;
 
 
-                uvs[vert + 0] = x / cols;
-                uvs[vert + 1] = z / rows;
+                uvs[vert*2 + 0] = x / cols;
+                uvs[vert*2 + 1] = z / rows;
 
                 vert++;
             }

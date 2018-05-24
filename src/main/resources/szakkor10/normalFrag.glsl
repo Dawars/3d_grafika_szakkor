@@ -7,5 +7,7 @@ in vec2 vertUV;
 out vec4 fragColor;
 
 void main() {
-  fragColor = vertColor;
+    vec3 normal = normalize(vertNormal);
+
+    fragColor = vertColor;
 }
