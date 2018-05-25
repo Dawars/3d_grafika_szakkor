@@ -27,7 +27,7 @@ vec3 snoiseGrad(vec3 r) {
 
 void main() {
 
-    vec3 normal=normalize(ecNormal); // TODO: add normal perturbation
+    vec3 normal=normalize(normalize(ecNormal) + 0.1 * snoiseGrad(modelPosition));
 
     vec3 incident = normalize(ecPosition);
 

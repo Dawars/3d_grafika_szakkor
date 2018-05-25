@@ -5,6 +5,7 @@ precision mediump int;
 
 uniform sampler2D texture;
 uniform sampler2D normalTexture;
+uniform sampler2D dudvTexture;
 //uniform samplerCube cubemap;
 
 varying vec4 uv; // texture
@@ -13,17 +14,21 @@ varying vec3 ecPosition; // position
 varying vec3 lightDir; // light
 varying mat3 TBN;
 
+const float scale = 0.03f;
+
 void main() {
-    vec3 normalMap = texture2D(normalTexture, uv.st).rgb;
+    vec2 dudv = texture2D(dudvTexture, uv.st).st;
+    dudv = (2*dudv)-1;
+
+    vec3 normalMap = texture2D(normalTexture, uv.st + scale * dudv).rgb;
     normalMap.r = 1-normalMap.r; // flip red channel
-    // TODO 1: Convert colors to direction [0,1]->[-1,1]
+    normalMap = (2 * normalMap) - 1;
 
     // normalize vectors
     vec3 direction = normalize(lightDir);
-    vec3 normal = normalize(ecNormal); // Todo 2: calculate new normal direction
+    vec3 normal = normalize(TBN * normalMap);
 
-    vec3 diffuseColor = texture2D(texture, uv.st).rgb;
-    float alpha = texture2D(texture, uv.st).a;
+    vec3 diffuseColor = texture2D(texture, uv.st + scale * dudv).rgb;
 
 
 // diffuse lambert

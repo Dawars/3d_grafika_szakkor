@@ -34,8 +34,8 @@ void main() {
     // incident light
     lightDir = lightPosition.xyz - ecPosition; // eye coordinates
 
-    vec3 T = vec3(0); // Todo: calculate tangent
-    vec3 B = vec3(0); // Todo: calculate bitangent
+    vec3 T = vec3(normalMatrix * tangent);
+    vec3 B = vec3(normalMatrix * bitangent);
     TBN = mat3(T, B, ecNormal);
 
 }

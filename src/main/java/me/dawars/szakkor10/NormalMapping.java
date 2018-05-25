@@ -14,6 +14,7 @@ public class NormalMapping extends PApplet {
     private float angle;
     private PImage normalTexture;
     private boolean rotate;
+    private PImage dudvTexture;
 
     public static void main(String[] args) {
         PApplet.main(NormalMapping.class);
@@ -31,8 +32,10 @@ public class NormalMapping extends PApplet {
 
         diffTexture = loadImage("szakkor10/rocks.png");
         normalTexture = loadImage("szakkor10/rocks_normal.png");
+        dudvTexture = loadImage("szakkor10/dudv.jpg");
         shader = loadShader("szakkor10/frag.glsl", "szakkor10/vert.glsl");
         shader.set("normalTexture", normalTexture);
+        shader.set("dudvTexture", dudvTexture);
     }
 
     @Override
