@@ -48,7 +48,7 @@ public class NormalPerturbation extends PApplet {
     @Override
     public void setup() {
         textureMode(NORMAL);
-        noStroke(); // todo uncomment
+        noStroke();
 
         cube = createShape(BOX, 5000); // skybox
         sphere = createShape(SPHERE, 50); // test object
@@ -58,15 +58,15 @@ public class NormalPerturbation extends PApplet {
 //        radioShape.setTexture(radioTexture);  // doesn't work on mac yet
 
         skyboxShader = loadShader("szakkor9/skybox_frag.glsl", "szakkor9/skybox_vert.glsl");
-        reflectShader = loadShader("szakkor10/reflect_frag.glsl", "szakkor10/reflect_vert.glsl");
+        reflectShader = loadShader("szakkor10/perturb_frag.glsl", "szakkor10/perturb_vert.glsl");
 
         cubeMap = new PImage[]{
-                loadImage("szakkor9/witcher2_px.png"),
-                loadImage("szakkor9/witcher2_nx.png"),
-                loadImage("szakkor9/witcher2_py.png"),
-                loadImage("szakkor9/witcher2_ny.png"),
-                loadImage("szakkor9/witcher2_pz.png"),
-                loadImage("szakkor9/witcher2_nz.png"),
+                loadImage("szakkor9/witcher_px.png"),
+                loadImage("szakkor9/witcher_nx.png"),
+                loadImage("szakkor9/witcher_py.png"),
+                loadImage("szakkor9/witcher_ny.png"),
+                loadImage("szakkor9/witcher_pz.png"),
+                loadImage("szakkor9/witcher_nz.png"),
         };
 
         for (PImage img : cubeMap) {

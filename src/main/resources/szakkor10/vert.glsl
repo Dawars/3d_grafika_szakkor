@@ -11,7 +11,7 @@ attribute vec3 tangent;
 attribute vec3 bitangent;
 attribute vec2 texCoord;
 
-varying vec4 vertTexCoord; // texture
+varying vec4 uv; // texture
 varying vec3 ecNormal; // normal
 varying vec3 ecPosition; // position
 varying vec3 vertTangent; // light
@@ -26,7 +26,7 @@ void main() {
     ecPosition = vec3(modelview * position); // eye coordinates
 
     // texture
-    vertTexCoord = texMatrix * vec4(texCoord, 1.0, 1.0);
+    uv = texMatrix * vec4(texCoord, 1.0, 1.0);
 
     // normal
     ecNormal = normalMatrix * normal;
@@ -34,8 +34,8 @@ void main() {
     // incident light
     lightDir = lightPosition.xyz - ecPosition; // eye coordinates
 
-    vec3 T = normalize(mat3(normalMatrix) * vec3(1,0,0));
-    vec3 B = normalize(mat3(normalMatrix) * vec3(0,1,0));
+    vec3 T = vec3(0); // Todo: calculate tangent
+    vec3 B = vec3(0); // Todo: calculate bitangent
     TBN = mat3(T, B, ecNormal);
 
 }
