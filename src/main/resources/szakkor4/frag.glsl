@@ -4,7 +4,7 @@ precision mediump int;
 #endif
 
 uniform sampler2D texture;
-uniform samplerCube cubemap;
+zuniform samplerCube cubemap;
 
 varying vec4 vertColor; // color
 varying vec4 vertTexCoord; // texture
