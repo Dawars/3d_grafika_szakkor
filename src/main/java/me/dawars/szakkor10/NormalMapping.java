@@ -35,8 +35,6 @@ public class NormalMapping extends PApplet {
         shader.set("normalTexture", normalTexture);
     }
 
-    private PVector[] lights = {new PVector(100, 80, -100)};
-
     @Override
     public void draw() {
         background(0);
@@ -46,11 +44,20 @@ public class NormalMapping extends PApplet {
         beginCamera();
         if (rotate) {
             rotateY(PI / 4 * sin(angle));
-//            rotateX(PI / 4 * cos(angle));
+            rotateX(PI / 4 * cos(angle));
         }
         endCamera();
 
+        float x = 50 * cos(angle) /* cos(angle)*/;
+        float y = 50 * sin(angle) /* sin(angle)*/;
+        float z = 50 /* sin(angle)*/;
+
+
         shader(shader);
+        pointLight(255, 255, 255, x, y, z);
+
+
+        noStroke();
         beginShape(QUADS);
 
         texture(diffTexture);
@@ -67,6 +74,11 @@ public class NormalMapping extends PApplet {
         vertex(-100, -100, 0, 0);
         endShape();
 
+        // light visualization
+        resetShader();
+        strokeWeight(5);
+        stroke(255);
+        point(x, y, z);
 
         angle += 0.01f;
     }

@@ -23,7 +23,7 @@ void main() {
 
     // normalize vectors
     vec3 direction = normalize(lightDir);
-    vec3 normal = normalize(normalize(ecNormal)+transpose(TBN) * normalMap);
+    vec3 normal = normalize(TBN * normalMap);
     vec3 camDir = normalize(-ecPosition);
 
 //  gl_FragColor = vec4( vertTexCoord.st, 0, 1);
