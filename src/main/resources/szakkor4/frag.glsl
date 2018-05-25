@@ -4,7 +4,7 @@ precision mediump int;
 #endif
 
 uniform sampler2D texture;
-//uniform samplerCube cubemap;
+zuniform samplerCube cubemap;
 
 varying vec4 vertColor; // color
 varying vec4 vertTexCoord; // texture
@@ -41,13 +41,13 @@ void main() {
     //float attenuation = 1.0/(1.0 + 0.1*lightDistance + 0.01*lightDistance*lightDistance);
 
 // diffuse lambert
-    float lambertian = clamp(dot(normal, direction), 0, 1);
+    float lambertian = max(0, dot(normal, direction));
 
 // specular
     vec3 reflectDir = normalize(reflect(-direction, normal));
     vec3 halfDir = normalize(direction + camDir); // blinn phong
 //    float specAngle = max(dot(reflectDir, viewDir), 0.0); // phong
-    float specAngle = clamp(dot(halfDir, normal), 0, 1); // blinn phong
+    float specAngle = max(dot(halfDir, normal), 0.0); // blinn phong
 
     float specular = pow(specAngle, 25.0);
 
@@ -56,6 +56,8 @@ void main() {
         kD * attenuation * lambertian * diffuseColor + // diffuse
         kS * attenuation * specular * vec3(1.0)
         ;
+
+    vec4 a= texture(cubemap, normalize(ecPosition));
 
     gl_FragColor = vec4(color, 1);
     //gl_FragColor = vec4(attenuation, attenuation, attenuation, 1);
