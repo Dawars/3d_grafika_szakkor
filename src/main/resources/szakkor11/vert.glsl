@@ -1,19 +1,19 @@
+#version 410 core
+
 uniform mat4 transform;
 uniform mat4 modelview;
 uniform mat3 normalMatrix;
+uniform mat4 texMatrix;
 
-uniform vec4 lightPosition;
 
-attribute vec4 position;
-attribute vec4 color;
-attribute vec3 normal;
-attribute float blendWeight;
+layout(location=0) in vec4 position;
+layout(location=1) in vec3 normal;
+layout(location=2) in vec2 texCoord;
 
-varying vec4 vertColor; // color
-varying vec3 ecNormal; // normal
-varying vec3 ecPosition; // position
-varying vec3 lightDir; // light
-varying float weight; // blend weight
+out vec3 ecNormal; // normal
+out vec3 ecPosition; // position
+out vec2 uv;
+out vec3 lightDir;
 
 void main() {
     // screen coordinate
@@ -22,14 +22,9 @@ void main() {
     // camera space
     ecPosition = vec3(modelview * position); // eye coordinates
 
-    // vertex color
-    vertColor = color;
-
     // normal
     ecNormal = normalMatrix * normal;
 
-    // incident light
-    lightDir = lightPosition.xyz - ecPosition; // eye coordinates
+    uv = (texMatrix * vec4(texCoord, 1.0, 1.0)).st;
 
-    weight = blendWeight;
 }
