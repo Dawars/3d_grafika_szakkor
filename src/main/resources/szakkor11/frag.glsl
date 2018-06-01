@@ -17,7 +17,8 @@ void main(){
 
     vec4 texel = texture(texture, uv);
 
-    vec3 color = 0.9 * lambert * texel.rgb;
+    float emissive = texel.a;
+    vec3 color = mix(lambert, 1, emissive) * texel.rgb;
 
     fragColor = vec4(color, 1);
 }

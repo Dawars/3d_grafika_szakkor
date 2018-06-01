@@ -36,8 +36,8 @@ public class PostProcessing extends PApplet {
     public void setup() {
         textureMode(NORMAL);
 
-        radioShape = loadShape("models/radio/radio.obj");
-        radioTexture = loadImage("models/radio/radio.png");
+        radioShape = loadShape("models/switch/switch.obj");
+        radioTexture = loadImage("models/switch/switch.png");
         radioShape.setTexture(radioTexture);
 
         shader = loadShader("szakkor11/frag.glsl", "szakkor11/vert.glsl");
@@ -57,6 +57,7 @@ public class PostProcessing extends PApplet {
     public void draw() {
 
         blendMode(BLEND);
+        g.background(0);
         shader(shader);
         renderToCanvas(g);
 
@@ -65,10 +66,8 @@ public class PostProcessing extends PApplet {
 
         blendMode(ADD);
 
-        fx.render(glowCanvas).compose();// emissive
-
         fx.render(glowCanvas) // bloom
-                .blur(15, 2)
+                .blur(20, 40)
                 .compose();
 
 
